@@ -11,7 +11,7 @@ services:
   openemr:
     restart: always
     #image: openemr/openemr:5.0.2
-    build: ../openemr-devops/docker/openemr/5.0.2
+    build: ../openemr-devops/docker/openemr/gepdnl-5.0.2
     ports:
       - 80:80
       - 443:443
