@@ -4,7 +4,7 @@
 # EASY_DEV_MODE prevents issues with permissions when mounting volumes
 # MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
-version: '3.1'
+version: '3.7'
 services:
   mysql:
     restart: always
@@ -19,9 +19,9 @@ services:
   openemr:
     restart: always
     # use an image if you're not changing the build steps:
-    image: openemr/openemr:flex
+    #image: openemr/openemr:flex
     # if editing the Dockerfile, clone the devops repo and point to the path:
-    # build: ../openemr-devops/docker/openemr/flex-edge/
+    build: ../openemr-devops/docker/openemr/gepdnl-5.0.2/
     ports:
     - 8300:80
     - 9300:443
@@ -29,13 +29,13 @@ services:
     - 3001:3001 # browsersync-admin
     volumes:
     - .:/var/www/localhost/htdocs/openemr:rw
-    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
-    - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
-    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
+#    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
+    - sitevolume:/var/www/localhost/htdocs/openemr/sites/default:rw
+#    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
     - logvolume01:/var/log
-    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
-    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
-    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+#    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+#    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+#    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -43,9 +43,10 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
-      FLEX_REPOSITORY_BRANCH: master
+#      FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
+#      FLEX_REPOSITORY_BRANCH: gepd.nl
       EASY_DEV_MODE: "yes"
+      DOMAIN: "gepd.nl"
     depends_on:
     - mysql
   phpmyadmin:
@@ -57,10 +58,5 @@ services:
       PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
-  assetsvolume01: {}
-  configvolume01: {}
-  configvolume02: {}
+  sitevolume: {}
   logvolume01: {}
-  nodemodules: {}
-  vendordir: {}
-  ccdamodule: {}
