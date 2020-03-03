@@ -4,6 +4,8 @@ services:
     restart: always
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 8320:3306
     volumes:
       - databasevolume:/var/lib/mysql
     environment:
@@ -11,13 +13,19 @@ services:
   openemr:
     restart: always
     #image: openemr/openemr:5.0.2
-    build: ../openemr-devops/docker/openemr/gepdnl-5.0.2
+    build: ../openemr-devops/docker/openemr/flex-3.10
     ports:
       - 80:80
       - 443:443
     volumes:
-      - logvolume01:/var/log
-      - sitevolume:/var/www/localhost/htdocs/openemr/sites
+    - .:/openemr:ro
+    - .:/var/www/localhost/htdocs/openemr:rw
+    - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
+    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    - logvolume:/var/log
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -25,7 +33,10 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-      #DOMAIN: "gepd.nl"
+      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
+      FLEX_REPOSITORY_BRANCH: gepd.nl
+      EASY_DEV_MODE: "yes"
+      EASY_DEV_MODE_NEW: "yes"
     depends_on:
       - mysql
   phpmyadmin:
@@ -36,6 +47,10 @@ services:
     environment:
       PMA_HOSTS: mysql
 volumes:
-  logvolume01: {}
-  sitevolume: {}
   databasevolume: {}
+  publicvolume: {}
+  sitesvolume: {}
+  nodemodules: {}
+  vendordir: {}
+  ccdamodule: {}
+  logvolume: {}
