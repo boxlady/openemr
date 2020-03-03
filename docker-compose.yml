@@ -29,13 +29,8 @@ services:
     - 3001:3001 # browsersync-admin
     volumes:
     - .:/var/www/localhost/htdocs/openemr:rw
-#    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
     - sitevolume:/var/www/localhost/htdocs/openemr/sites/default:rw
-#    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
     - logvolume01:/var/log
-#    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
-#    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
-#    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -43,8 +38,6 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-#      FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
-#      FLEX_REPOSITORY_BRANCH: gepd.nl
       EASY_DEV_MODE: "yes"
       DOMAIN: "gepd.nl"
     depends_on:
