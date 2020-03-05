@@ -35,8 +35,8 @@ services:
       OE_PASS: pass
       FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
       FLEX_REPOSITORY_BRANCH: "gepd.nl"
-      DOMAIN: "gepd.nl"
-      EMAIL: "Boxlady@gmail.com"
+      #DOMAIN: "gepd.nl"
+      #EMAIL: "Boxlady@gmail.com"
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
     depends_on:
