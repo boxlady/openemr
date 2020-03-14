@@ -76,6 +76,28 @@ class ORDataObject
         }
     }
 
+    function get_history()
+    {
+        $sql = "SELECT * from " . escape_table_name($this->_prefix . $this->_table) . " WHERE pid = ?";
+        $sqlarray = sqlStatement($sql, [strval($this->pid)]);
+        while ($results = SqlFetchArray($sqlarray)) {
+            if ($this->id == $results['id']) {
+                continue;
+            }
+            if (is_array($results)) {
+                foreach ($results as $field_name => $field) {
+                    $func = "set_history_" . $field_name;
+                    if (is_callable(array($this, $func))) {
+                        if (!empty($field)) {
+                            call_user_func(array(&$this, $func), $results['id'] . " - " .$results['date'] . " - " . $field . "\r\n");
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
     function populate_array($results)
     {
         if (is_array($results)) {
