@@ -413,7 +413,7 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td></td>\n");
         echo ("<td>\n");
-        echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'] . "' />");
+        //echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'] . "' />");
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -428,7 +428,11 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $res['addr'] . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'Integraal Arts'. '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'BIG: 79025903401'. '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'AGB code: 84021556'. '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'AGB code praktijk: 90064562'. '</span></b>'. '<br>');
+
 
         if ($GLOBALS['rx_enable_DEA']) {
             if ($GLOBALS['rx_show_DEA']) {
@@ -454,6 +458,8 @@ class C_Prescription extends Controller
             }
         }
 
+
+
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -476,7 +482,7 @@ class C_Prescription extends Controller
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
-        echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br>');
+        echo ('<b><span class="small">' . xl('Record #') . '</span></b>' . '<br>');
         echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
