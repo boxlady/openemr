@@ -334,20 +334,29 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         //print header
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'center', '');
+        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logobeterkliniek'], '', '50', '', 'center', '');
         $pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
+
         $pdf->ezText($res['addr'], 12);
+
         $my_y = $pdf->y;
         $pdf->ezNewPage();
-        $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
+        //$pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
+        $pdf->ezText('<b>' . 'Mw. An van Veen' . '</b>', 12);
+        $pdf->ezText('<b>' . 'Integraal Arts' . '</b>', 12);
+        $pdf->ezText('<b>' . 'BIG: 79025903401' . '</b>', 12);
+        $pdf->ezText('<b>' . 'AGB code: 84021556' . '</b>', 12);
+        $pdf->ezText('<b>' . 'AGB code praktijk: 90064562' . '</b>', 12);
     // A client had a bad experience with a patient misusing a DEA number, so
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
     // Now it is configureable. Change value in
     //     Administration->Globals->Rx
+
+
         if ($GLOBALS['rx_enable_DEA']) {
             if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
@@ -413,7 +422,7 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td></td>\n");
         echo ("<td>\n");
-        //echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'] . "' />");
+        echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logobeterkliniek'] . "' />");
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -428,6 +437,7 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $res['addr'] . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
+        echo ('<b><span class="large">' . 'Mw. An van Veen'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'Integraal Arts'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'BIG: 79025903401'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'AGB code: 84021556'. '</span></b>'. '<br>');
