@@ -334,7 +334,7 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         //print header
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logobeterkliniek'], '', '50', '', 'center', '');
+        $pdf->ezImage('./interface/pic/logobeterkliniek.png','', '250', '', 'center', '');
         $pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
@@ -422,7 +422,7 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td></td>\n");
         echo ("<td>\n");
-        echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logobeterkliniek'] . "' />");
+        echo ("<img WIDTH='250pt' src='./interface/pic/logobeterkliniek.png'/>");
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
