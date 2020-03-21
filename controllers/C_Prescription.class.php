@@ -344,7 +344,7 @@ class C_Prescription extends Controller
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         //$pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
-        $pdf->ezText('<b>' . 'Ms. drs. A. van Veen' . '</b>', 12);
+        $pdf->ezText('<b>' . 'Mw. drs. A. van Veen' . '</b>', 12);
         $pdf->ezText('<b>' . 'Arts Integrale geneeskunde' . '</b>', 12);
         $pdf->ezText('<b>' . 'BIG: 79025903401' . '</b>', 12);
         $pdf->ezText('<b>' . 'AGB code: 84021556' . '</b>', 12);
