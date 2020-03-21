@@ -345,7 +345,7 @@ class C_Prescription extends Controller
         $pdf->ezNewPage();
         //$pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
         $pdf->ezText('<b>' . 'Ms. drs. A. van Veen' . '</b>', 12);
-        $pdf->ezText('<b>' . 'Doctor Integral medicine' . '</b>', 12);
+        $pdf->ezText('<b>' . 'Arts Integrale geneeskunde' . '</b>', 12);
         $pdf->ezText('<b>' . 'BIG: 79025903401' . '</b>', 12);
         $pdf->ezText('<b>' . 'AGB code: 84021556' . '</b>', 12);
         $pdf->ezText('<b>' . 'AGB code praktijk: 90064562' . '</b>', 12);
@@ -437,8 +437,8 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $res['addr'] . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' . 'Ms. drs. A. van Veen'. '</span></b>'. '<br>');
-        echo ('<b><span class="large">' . 'Doctor Integral medicine'. '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'Mw. drs. A. van Veen'. '</span></b>'. '<br>');
+        echo ('<b><span class="large">' . 'Arts Integrale geneeskunde'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'BIG: 79025903401'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'AGB code: 84021556'. '</span></b>'. '<br>');
         echo ('<b><span class="large">' . 'AGB code praktijk: 90064562'. '</span></b>'. '<br>');
