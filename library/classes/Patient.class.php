@@ -22,6 +22,8 @@ class Patient extends ORDataObject
     var $fname;
     var $date_of_birth;
     var $provider;
+    var $email;
+    var $email_direct;
 
     /**
      * Constructor sets all Prescription attributes to their default value
@@ -43,7 +45,7 @@ class Patient extends ORDataObject
         if (!empty($this->id)) {
             $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
                 "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, ".
-                "pubpid " .
+                "pubpid, email, email_direct " .
                 "FROM " . escape_table_name($this->_table) . " " .
                 "WHERE pid = ?", [$this->id]);
             if (is_array($res)) {
@@ -51,6 +53,8 @@ class Patient extends ORDataObject
                 $this->lname = $res['lname'];
                 $this->mname = $res['mname'];
                 $this->fname = $res['fname'];
+                $this->email = $res['email'];
+                $this->email_direct = $res['email_direct'];
                 $this->provider = new Provider($res['providerID']);
                 $this->date_of_birth = $res['date_of_birth'];
             }
@@ -83,5 +87,13 @@ class Patient extends ORDataObject
     function get_dob()
     {
         return $this->date_of_birth;
+    }
+    function get_email()
+    {
+        return $this->email;
+    }
+    function get_email_direct()
+    {
+        return $this->email_direct;
     }
 } // end of Patient
