@@ -394,7 +394,7 @@ class C_Prescription extends Controller
         $pdf->ezText($p->patient->get_name_display(), 10);
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
         $pdf->ezText($res['addr']);
-        $pdf->ezText('<b>' . xl('Email') . '</b>', 6);
+//        $pdf->ezText('<b>' . xl('Email') . '</b>', 6);
         $pdf->ezText(str_pad($p->patient->get_email(), 10, "0", STR_PAD_LEFT), 10);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
@@ -488,7 +488,7 @@ class C_Prescription extends Controller
 
         echo ($res['addr']);
         echo ("\n");
-        echo ('<b><span class="small">' . xl('Patient Email') . '</span></b>'. '<br>');
+//        echo ('<b><span class="small">' . xl('Patient Email') . '</span></b>'. '<br>');
         echo ($p->patient->get_email() . '<br>');
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
