@@ -487,6 +487,7 @@ class C_Prescription extends Controller
 
 
         echo ($res['addr']);
+        echo ("\n");
         echo ('<b><span class="small">' . xl('Patient Email') . '</span></b>'. '<br>');
         echo ($p->patient->get_email() . '<br>');
         echo ("</td>\n");
