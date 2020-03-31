@@ -54,7 +54,7 @@ services:
     restart: always
     image: wordpress:latest
     ports:
-    - 8330:443
+    - 8330:80
     - 9030:443
     volumes:
     - wordpress_files:/var/www/html
