@@ -34,9 +34,7 @@ services:
       OE_USER: admin
       OE_PASS: pass
       FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
-      FLEX_REPOSITORY_BRANCH: "gepd.nl"
-      #DOMAIN: "gepd.nl"
-      #EMAIL: "Boxlady@gmail.com"
+      FLEX_REPOSITORY_BRANCH: "wordpress_pt"
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
     depends_on:
@@ -48,6 +46,17 @@ services:
     - 8310:80
     environment:
       PMA_HOSTS: mysql
+  wordpress:
+    restart: always
+    image: wordpress:latest
+    ports:
+    - 8330:443
+    volumes:
+    - wordpress_files:/var/www/html
+    environment:
+     WORDPRESS_DB_HOST: mysql:8320
+     WORDPRESS_DB_USER: wordpress
+     WORDPRESS_DB_PASSWORD: password
 volumes:
   databasevolume: {}
   publicvolume: {}
@@ -56,3 +65,4 @@ volumes:
   vendordir: {}
   ccdamodule: {}
   logvolume: {}
+  wordpress_files: {}
