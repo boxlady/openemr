@@ -5,18 +5,19 @@ services:
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
     ports:
-    - 8320:3306
+    - 3306:3306
     volumes:
       - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
   openemr:
     restart: always
     #image: openemr/openemr:5.0.2
     build: ../openemr-devops/docker/openemr/flex-3.10
     ports:
-      - 80:80
-      - 443:443
+      - 8300:80
+      - 9000:443
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
@@ -44,19 +45,23 @@ services:
     image: phpmyadmin/phpmyadmin
     ports:
     - 8310:80
+    - 9010:433
     environment:
       PMA_HOSTS: mysql
   wordpress:
+      depends_on:
+        - mysql
     restart: always
     image: wordpress:latest
     ports:
     - 8330:443
+    - 9030:443
     volumes:
     - wordpress_files:/var/www/html
     environment:
-     WORDPRESS_DB_HOST: mysql:8320
-     WORDPRESS_DB_USER: wordpress
-     WORDPRESS_DB_PASSWORD: password
+     WORDPRESS_DB_HOST: mysql:3306
+     WORDPRESS_DB_USER: root
+     WORDPRESS_DB_PASSWORD: root
 volumes:
   databasevolume: {}
   publicvolume: {}
