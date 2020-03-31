@@ -49,8 +49,8 @@ services:
     environment:
       PMA_HOSTS: mysql
   wordpress:
-      depends_on:
-        - mysql
+    depends_on:
+     - mysql
     restart: always
     image: wordpress:latest
     ports:
@@ -59,9 +59,9 @@ services:
     volumes:
     - wordpress_files:/var/www/html
     environment:
-     WORDPRESS_DB_HOST: mysql:3306
-     WORDPRESS_DB_USER: root
-     WORDPRESS_DB_PASSWORD: root
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: root
 volumes:
   databasevolume: {}
   publicvolume: {}
