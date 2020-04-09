@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Julie Buurman <boxlady@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Julie Buurman <Boxady@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -133,9 +135,10 @@ if ($_POST['form_create']) {
     newEmployerData($pid);
     newHistoryData($pid);
     newInsuranceData($pid, "primary");
+if(!$GLOBALS['insurance_only_one']) {
     newInsuranceData($pid, "secondary");
     newInsuranceData($pid, "tertiary");
-
+}
   // Set referral source separately because we don't want it messed
   // with later by newPatientData().
     if ($refsource = trim($_POST["refsource"])) {

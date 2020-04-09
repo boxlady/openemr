@@ -9,10 +9,12 @@
  * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Julie Buurman <boxladu@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2020 Julie Buurman <Boxady@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -64,6 +66,12 @@ if ($GLOBALS['enable_cdr']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
+}
+//Check to see is only one insurance is allowed
+if($GLOBALS['insurance_only_one']){
+    $insurance_array = array('primary');
+} else {
+    $insurance_array = array('primary', 'secondary', 'tertiary');
 }
 
 function print_as_money($money)
@@ -929,7 +937,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <ul class="tabNav"><?php
                                             ///////////////////////////////// INSURANCE SECTION
                                             $first = true;
-                                foreach (array('primary','secondary','tertiary') as $instype) {
+                                foreach ($insurance_array as $instype) {
                                     $query = "SELECT * FROM insurance_data WHERE " .
                                     "pid = ? AND type = ? " .
                                     "ORDER BY date DESC";
@@ -962,7 +970,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <div class="tabContainer">
                                             <?php
                                             $first = true;
-                                            foreach (array('primary','secondary','tertiary') as $instype) {
+                                            foreach ($insurance_array  as $instype) {
                                                 $enddate = 'Present';
 
                                                 $query = "SELECT * FROM insurance_data WHERE " .

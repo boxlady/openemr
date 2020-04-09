@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Julie Buurman <boxlady@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Julie Buurman <Boxady@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -408,7 +410,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <script> var constraints = <?php echo $constraints;?>; </script>
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Search or Add Patient');?></h2>
                 </div>
@@ -599,12 +601,17 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     if (! $GLOBALS['simplified_demographics']) {
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
+                    if($GLOBALS['insurance_only_one']){
+                        $insurance_headings = array(xl("Primary Insurance Provider"));
+                        $insurance_info = array();
+                        $insurance_info[1] = getInsuranceData($pid, "primary");
+                    }else{
                         $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
                         $insurance_info = array();
                         $insurance_info[1] = getInsuranceData($pid, "primary");
                         $insurance_info[2] = getInsuranceData($pid, "secondary");
                         $insurance_info[3] = getInsuranceData($pid, "tertiary");
-
+                    }
                         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
                         "onclick='return divclick(this,\"div_ins\");'";
                         if ($display_style == 'block') {
@@ -614,7 +621,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         echo " /><b>" . xlt('Insurance') . "</b></span>\n";
                         echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
 
-                        for ($i=1; $i<=3; $i++) {
+                        for ($i=1; $i<=sizeof($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
                             ?>
                         <table border="0">
