@@ -13,7 +13,7 @@
 require_once(dirname(__FILE__).'/../../globals.php');
 require_once($GLOBALS["srcdir"]."/api.inc");
 
-function soap_report($pid, $encounter, $cols, $id)
+function specialist_soap_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column
     $count = 0;

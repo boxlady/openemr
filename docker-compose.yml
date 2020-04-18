@@ -27,6 +27,8 @@ services:
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     - logvolume:/var/log
     environment:
+      XDEBUG_CONFIG: "remote_host=172.17.0.1"
+      PHP_IDE_CONFIG: "serverName=localhost"
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr
@@ -35,7 +37,7 @@ services:
       OE_PASS: pass
       FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
       FLEX_REPOSITORY_BRANCH: "gepd.nl"
-      #DOMAIN: "gepd.nl"
+      #DOMAIN: "gepd.nl www.gepd.nl"
       #EMAIL: "Boxlady@gmail.com"
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"

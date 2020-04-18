@@ -22,7 +22,7 @@ require_once("../globals.php");
 //
 $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-  "p.street, p.city, p.state, p.postal_code, p.pid " .
+  "p.street, p.city, p.state, p.postal_code, p.pid, p.email " .
   "FROM patient_data AS p " .
   "WHERE p.pid = ? LIMIT 1", array($pid));
 
@@ -48,6 +48,10 @@ if ($GLOBALS['chart_label_type'] == '2') {
 if ($GLOBALS['chart_label_type'] == '3') {
     $pdf = new PDF_Label('5162');
     $last = 14;
+}
+if ($GLOBALS['chart_label_type'] == '4') {
+    $pdf = new PDF_Label('Dymo');
+    $last = 1;
 }
 
 $pdf->AddPage();
