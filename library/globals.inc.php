@@ -3571,7 +3571,8 @@ $GLOBALS_METADATA = array(
                 '0' => xl('None'),
                 '1' => '5160',
                 '2' => '5161',
-                '3' => '5162'
+                '3' => '5162',
+                '4' => 'fvp10'
             ),
             '1', // default
             xl('Avery Label type for printing patient labels from popups in left nav screen'),

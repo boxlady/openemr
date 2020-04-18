@@ -50,20 +50,24 @@ if ($GLOBALS['chart_label_type'] == '3') {
     $last = 14;
 }
 if ($GLOBALS['chart_label_type'] == '4') {
-    $pdf = new PDF_Label('Dymo');
+    $pdf = new PDF_Label('fvp10');
+    //$pdf = new PDF_Label(array(76,38),'mm');
     $last = 1;
 }
 
 $pdf->AddPage();
-
+$exmp = "";
+$exmp .= $patdata['mname'] .$patdata['lname'] .$patdata['fname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
+$exmp .= $dob. "\n";
+$exmp .= $patdata['email'];
 // Added spaces to the sprintf for Fire Fox it was having a problem with alignment
-$text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'], $dob, $today, $patdata['pid']);
+//$text = sprint($exmp, $dob, $today, $patdata['email']);
 
 // For loop for printing the labels
 //
 
 for ($i=1; $i<=$last; $i++) {
-    $pdf->Add_Label($text);
+    $pdf->Add_Label($exmp);
 }
 
 $pdf->Output();
