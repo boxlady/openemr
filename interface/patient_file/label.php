@@ -50,8 +50,11 @@ if ($GLOBALS['chart_label_type'] == '3') {
     $last = 14;
 }
 if ($GLOBALS['chart_label_type'] == '4') {
-    $pdf = new PDF_Label('fvp10');
-    //$pdf = new PDF_Label(array(76,38),'mm');
+    $pdf = new PDF_Label('fvp10p');
+    $last = 1;
+}
+if ($GLOBALS['chart_label_type'] == '5') {
+    $pdf = new PDF_Label('fvp10l');
     $last = 1;
 }
 
