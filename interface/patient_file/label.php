@@ -57,10 +57,14 @@ if ($GLOBALS['chart_label_type'] == '5') {
     $pdf = new PDF_Label('fvp10l');
     $last = 1;
 }
+if ($GLOBALS['chart_label_type'] == '6') {
+    $pdf = new PDF_Label('fvp10-t');
+    $last = 1;
+}
 
 $pdf->AddPage();
 $exmp = "";
-$exmp .= $patdata['mname'] .$patdata['lname'] .$patdata['fname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
+$exmp .= $patdata['mname'] .' '.$patdata['lname'] .' '.$patdata['fname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
 $exmp .= $dob. "\n";
 $exmp .= $patdata['email'];
 // Added spaces to the sprintf for Fire Fox it was having a problem with alignment
