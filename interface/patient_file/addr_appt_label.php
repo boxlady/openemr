@@ -43,15 +43,6 @@ if ($GLOBALS['chart_label_type'] == '1') {
 } elseif ($GLOBALS['chart_label_type'] == '5') {
     $pdf = new PDF_Label('fvp10l');
     $last = 1;
-} elseif ($GLOBALS['chart_label_type'] == '6') {
-    $pdf = new PDF_Label('8600');
-    $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '7') {
-    $pdf = new PDF_Label('L7163');
-    $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '8') {
-    $pdf = new PDF_Label('3422');
-    $last = 14;
 } else {
     $pdf = new PDF_Label('5160');
     $last = 30;
@@ -60,16 +51,34 @@ $pdf->AddPage();
 
 #Get the data to place on labels
 #and output each label
-foreach ($pid_list as $pid) {
+//foreach ($pid_list as $pid) {
+//    $patdata = sqlQuery("SELECT " .
+//    "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
+//    "p.street, p.city, p.state, p.postal_code, p.pid " .
+//    "FROM patient_data AS p " .
+//    "WHERE p.pid = ? LIMIT 1", array($pid));
+//
+//# sprintf to print data
+//    $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['postal_code'], $patdata['city'], $patdata['state']);
+//    $exmp = "";
+//    $exmp .= $patdata['fname'] .' '.$patdata['lname'] .' '. "\n";
+//    $exmp .= $patdata['street']. ' '. $patdata['postal_code']."\n";
+//    $exmp .= $patdata['city'].' '. $patdata['state'];
+//
+//    $pdf->Add_Label($exmp);
+//}
+for ($i=1; $i<=$last; $i++) {
     $patdata = sqlQuery("SELECT " .
-    "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-    "p.street, p.city, p.state, p.postal_code, p.pid " .
-    "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($pid));
+                        "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
+                        "p.street, p.city, p.state, p.postal_code, p.pid " .
+                        "FROM patient_data AS p " .
+                        "WHERE p.pid = ? LIMIT 1", array($pid_list));
+    $exmp = "";
+    $exmp .= $patdata['fname'] .' '.$patdata['lname'] .' '. "\n";
+    $exmp .= $patdata['street']. ' '. $patdata['postal_code']."\n";
+    $exmp .= $patdata['city'].' '. $patdata['state'];
 
-# sprintf to print data
-    $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['postal_code'], $patdata['city'], $patdata['state']);
-    $pdf->Add_Label($text);
+    $pdf->Add_Label($exmp);
 }
 
 $pdf->Output();
