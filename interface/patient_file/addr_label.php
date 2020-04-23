@@ -1,67 +1,76 @@
 <?php
 /**
-* interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing.
-*
-* Program for displaying Address Labels
-*
-* @package   OpenEMR
-* @link      http://www.open-emr.org
-* @author    Terry Hill <terry@lillysystems.com>
-* @author    Daniel Pflieger <growlingflea@gmail.com>
-* @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
-* @copyright Copyright (c) 2017 Daniel Pflieger <growlingflea@gmail.com>
-* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-*/
+ * interface/patient_file/label.php Displaying a PDF file of Labels for printing.
+ *
+ * Program for displaying Chart Labels
+ * via the popups on the left nav screen
+ *
+ * Used the program example supplied with the Avery Label Print Class to produce this program
+ *
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
 
 //Get the data to place on labels
 //
-
 $patdata = sqlQuery("SELECT " .
-  "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-  "p.street, p.city, p.state, p.postal_code, p.pid " .
-  "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+                    "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
+                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email " .
+                    "FROM patient_data AS p " .
+                    "WHERE p.pid = ? LIMIT 1", array($pid));
 
 // re-order the dates
 //
+
 $today = oeFormatShortDate($date = 'today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
-//Keep in mind the envelope is shifted by 90 degrees.
-// Changes made by Daniel Pflieger, daniel@mi-squared.com growlingflea@gmail.com
+//get label type and number of labels on sheet
+//
 
-$x_width =  $GLOBALS['env_x_width'];
-$y_height = $GLOBALS['env_y_height'];
+if ($GLOBALS['chart_label_type'] == '1') {
+    $pdf = new PDF_Label('5160');
+    $last = 30;
+}
 
-//printed text details
-$font_size = $GLOBALS['env_font_size'];
-$x         = $GLOBALS['env_x_dist'];  // Distance from the 'top' of the envelope in portrait position
-$y         = $GLOBALS['env_y_dist']; // Distance from the right most edge of the envelope in portrait position
-$angle    = 90;   // rotation in degrees
-$black    = '000000'; // color in hexa
+if ($GLOBALS['chart_label_type'] == '2') {
+    $pdf = new PDF_Label('5161');
+    $last = 20;
+}
 
-//Format of the address
-//This number increases the spacing between the line printed on the envelope
-$xt       = .2*$font_size;
+if ($GLOBALS['chart_label_type'] == '3') {
+    $pdf = new PDF_Label('5162');
+    $last = 1;
+}
+if ($GLOBALS['chart_label_type'] == '4') {
+    $pdf = new PDF_Label('fvp10p');
+    $last = 1;
+}
+if ($GLOBALS['chart_label_type'] == '5') {
+    $pdf = new PDF_Label('fvp10a');
+    $last = 1;
+}
 
-//ymargin of printed text. The smaller the number, the further from the left edge edge the address is printed
-$yt       = 0;
-
-$text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
-$text2 = sprintf("%s \n", $patdata['street']);
-$text3 = sprintf("%s , %s %s", $patdata['city'], $patdata['state'], $patdata['postal_code']);
-
-$pdf = new eFPDF('P', 'mm', array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
-$pdf->SetFont('Arial', '', $font_size);
-$pdf->TextWithRotation($x, $y + $yt, $text1, $angle);
-$xt += $xt;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text2, $angle);
-$xt +=$xt;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text3, $angle);
-$xt +=$xt;
+$exmp = "";
+$exmp .= $patdata['fname'] .' '.$patdata['lname'] .' '. "\n";
+$exmp .= $patdata['street'] .' '. $patdata['postal_code'] ."\n";
+$exmp .= $patdata['city'] .' '. $patdata['state'];
+// Added spaces to the sprintf for Fire Fox it was having a problem with alignment
+//$text = sprint($exmp, $dob, $today, $patdata['email']);
+
+// For loop for printing the labels
+//
+
+for ($i=1; $i<=$last; $i++) {
+    $pdf->Add_Label($exmp);
+}
 
 $pdf->Output();
