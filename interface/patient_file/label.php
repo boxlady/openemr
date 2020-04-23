@@ -58,7 +58,7 @@ if ($GLOBALS['chart_label_type'] == '5') {
     $last = 1;
 }
 if ($GLOBALS['chart_label_type'] == '6') {
-    $pdf = new PDF_Label('fvp10-t');
+    $pdf = new PDF_Label('fvp10l');
     $last = 1;
 }
 

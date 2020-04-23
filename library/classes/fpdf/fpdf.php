@@ -131,7 +131,7 @@ function __construct($orientation='P', $unit='mm', $size='A4')
 		$this->Error('Incorrect unit: '.$unit);
 	// Page sizes
 	$this->StdPageSizes = array('a3'=>array(841.89,1190.55), 'a4'=>array(595.28,841.89), 'a5'=>array(420.94,595.28),
-		'letter'=>array(612,792), 'legal'=>array(612,1008),'fvp10'=>array(221.102,  107.717), 'fvp10p'=>array(226.772,  121.89), 'A7' => array( 209.764,
+		'letter'=>array(612,792), 'legal'=>array(612,1008),'fvp10'=>array(221.102,  107.717), 'fvp10p'=>array(226.77230, 85.0394), 'A7' => array( 209.764,
             297.638),) ;
 	$size = $this->_getpagesize($size);
 	$this->DefPageSize = $size;
