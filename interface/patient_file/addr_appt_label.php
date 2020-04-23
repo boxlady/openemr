@@ -68,7 +68,7 @@ foreach ($pid_list as $pid) {
     "WHERE p.pid = ? LIMIT 1", array($pid));
 
 # sprintf to print data
-    $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);
+    $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['postal_code'], $patdata['city'], $patdata['state']);
     $pdf->Add_Label($text);
 }
 
