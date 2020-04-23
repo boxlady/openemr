@@ -41,8 +41,8 @@ if ($GLOBALS['chart_label_type'] == '1') {
     $pdf = new PDF_Label('5163');
     $last = 14; //not sure about $last from here on down
 } elseif ($GLOBALS['chart_label_type'] == '5') {
-    $pdf = new PDF_Label('5164');
-    $last = 14;
+    $pdf = new PDF_Label('fvp10l');
+    $last = 1;
 } elseif ($GLOBALS['chart_label_type'] == '6') {
     $pdf = new PDF_Label('8600');
     $last = 14;
