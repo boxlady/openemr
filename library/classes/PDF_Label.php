@@ -124,7 +124,7 @@ class PDF_Label extends FPDF {
 		$this->_Width 		= $this->_Convert_Metric($format['width'], $format['metric']);
 		$this->_Height	 	= $this->_Convert_Metric($format['height'], $format['metric']);
 		$this->Set_Font_Size($format['font-size']);
-		$this->_Padding		= $this->_Convert_Metric(3, 'mm');
+		$this->_Padding		= $this->_Convert_Metric(0, 'mm');
 	}
 
 	// convert units (in to mm, mm to in)
