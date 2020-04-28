@@ -64,11 +64,12 @@ if ($GLOBALS['chart_label_type'] == '6') {
 
 $pdf->AddPage();
 $exmp = "";
-$exmp .= $patdata['mname'] .' '.$patdata['lname'] .' '.$patdata['fname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
-$exmp .= $dob. ' - '.  $patdata['email']."\n";
+$exmp .= $patdata['fname'] .' '.$patdata['mname'] .' '.$patdata['lname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
+$exmp .= $patdata['street'] ."\n";
+$exmp .= $patdata['postal_code'] .' '.$patdata['city']."\n";
+$exmp .= $patdata['email']."\n";
+$exmp .= $dob. "\n";
 $exmp .= $patdata['phone_contact']."\n";
-$exmp .= $patdata['street'] .' '. $patdata['postal_code'] ."\n";
-$exmp .= $patdata['city'] .' '. $patdata['state'];
 // Added spaces to the sprintf for Fire Fox it was having a problem with alignment
 //$text = sprint($exmp, $dob, $today, $patdata['email']);
 
