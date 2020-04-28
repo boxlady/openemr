@@ -22,7 +22,7 @@ require_once("../globals.php");
 //
 $patdata = sqlQuery("SELECT " .
                     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email " .
+                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email, p.phone_contact  " .
                     "FROM patient_data AS p " .
                     "WHERE p.pid = ? LIMIT 1", array($pid));
 
