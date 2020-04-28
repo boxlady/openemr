@@ -22,7 +22,7 @@ require_once("../globals.php");
 //
 $patdata = sqlQuery("SELECT " .
                     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email, p.phone_contact  " .
+                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email, p.phone_cell  " .
                     "FROM patient_data AS p " .
                     "WHERE p.pid = ? LIMIT 1", array($pid));
 
@@ -63,7 +63,6 @@ $exmp = "";
 $exmp .= $patdata['fname'] .' '.$patdata['mname'] .' '.$patdata['lname']. ' '.'(PID-'.$patdata['pid'].')' . "\n";
 $exmp .= $patdata['street'] ."\n";
 $exmp .= $patdata['postal_code'] .' '.$patdata['city']."\n";
-$exmp .= $patdata['phone_contact']."\n";
 // Added spaces to the sprintf for Fire Fox it was having a problem with alignment
 //$text = sprint($exmp, $dob, $today, $patdata['email']);
 
