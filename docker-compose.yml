@@ -20,12 +20,12 @@ services:
   openemr:
     restart: always
     # use an image if you're not changing the build steps:
-    image: openemr/openemr:flex
+    #image: openemr/openemr:flex
     # if editing the Dockerfile, clone the devops repo and point to the path:
-    # build: ../openemr-devops/docker/openemr/flex-edge/
+    build: ../openemr-devops/docker/openemr/flex-3.10/
     ports:
-    - 8300:80
-    - 9300:443
+    - 80:80
+    - 443:443
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
@@ -36,6 +36,10 @@ services:
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     - logvolume:/var/log
     environment:
+      FLEX_REPOSITORY: https://github.com/boxlady/openemr.git
+      FLEX_REPOSITORY_BRANCH: work_bon
+      XDEBUG_CONFIG: "remote_host=172.17.0.1"
+      PHP_IDE_CONFIG: "serverName=localhost"
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr

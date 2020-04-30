@@ -118,6 +118,7 @@ td {
 .resonly {
 
 }
+
 .label-div > a {
     display:none;
 }
@@ -150,6 +151,7 @@ var rcvarname;
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
 function set_related(codetype, code, selector, codedesc) {
+    debugger;
     var f = document.forms[0];
     var s = f[rcvarname].value;
     if (code) {
@@ -175,14 +177,14 @@ function del_related(s) {
 
 // This invokes the find-code popup.
 function sel_related(varname) {
+    debugger;
     if (typeof varname == 'undefined') {
         varname = 'form_related_code';
     }
     rcvarname = varname;
     let url = '../patient_file/encounter/find_code_dynamic.php';
     if (varname == 'form_diagnosis_code')
-        url = '../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("diagnosis", "csv")); ?>;
-
+        url = '../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes( 'procedure' ,"csv")); ?>;
     dlgopen(url, '_codeslkup', 985, 800, '', <?php echo xlj("Select Default Codes"); ?>);
 }
 
@@ -214,6 +216,7 @@ function doOrdPicker(e){
 
 // Show or hide sections depending on procedure type.
 function proc_type_changed() {
+    debugger;
     var f = document.forms[0];
     var pt = f.form_procedure_type;
     var ix = pt.selectedIndex;
@@ -224,9 +227,11 @@ function proc_type_changed() {
     $('.resonly').hide();
     $('.fgponly').hide();
     $('.foronly').hide();
+    $('.inhonly').hide();
     if (ptpfx == 'ord') $('.ordonly').show();
     if (ptpfx == 'for') $('.foronly').show();
-    if (ptpfx == 'res' || ptpfx == 'rec') $('.resonly').show();
+    if (ptpfx == 'inh') $('.inhonly').show();
+    if (ptpfx == 'res' || ptpfx == 'rec' ) $('.resonly').show();
     if (ptpfx == 'fgp') $('.fgponly').show(); // Favorites
     if (ptpfx == 'grp') {
         $('#form_legend').html(
@@ -240,13 +245,15 @@ function proc_type_changed() {
     } else if (ptpfx == 'for') {
         $('#form_legend').html(
             "<?php echo xla('Enter Details for Individual Custom Favorite Item'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
-    }
-    else if (ptpfx == 'res') {
+    } else if (ptpfx == 'res') {
         $('#form_legend').html(
             "<?php echo xla('Enter Details for Discrete Results'); ?>" + "   <i id='res' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'rec') {
         $('#form_legend').html(
             "<?php echo xla('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+    } else if (ptpfx == 'inh') {
+        $('#form_legend').html(
+            "<?php echo xla('Enter Details for In house lab'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
 }
     $(function () {
@@ -485,7 +492,7 @@ function proc_type_changed() {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-12 ordonly resonly fgponly foronly">
+                                <div class="col-sm-12 ordonly resonly fgponly foronly inhonly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
                                             <label class="control-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -528,6 +535,27 @@ function proc_type_changed() {
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-sm-12 inhonly">
+                                    <div class="clearfix">
+                                        <div class="col-sm-12 label-div">
+                                            <label class="control-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <input type='text'  name='form_related_code' id='form_related_code'
+                                                   value='<?php echo attr($row['related_code']) ?>'
+                                                   onclick='sel_related("form_related_code")'
+                                                   title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
+                                                   class='form-control' readonly />
+                                        </div>
+                                    </div>
+                                    <div id="related_code_info" class="collapse">
+                                        <a href="#related_code_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                        <p><?php echo xlt("Click to select services to perform if this result is abnormal.");?></p>
+                                        <p><?php echo xlt("This code is optional.");?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-12 foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
@@ -548,101 +576,8 @@ function proc_type_changed() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12 ordonly foronly">
-                                    <div class="clearfix">
-                                        <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <?php
-                                                generate_form_field(array(
-                                                    'data_type' => 1,
-                                                    'field_id' => 'body_site',
-                                                    'list_id' => 'proc_body_site',
-                                                    'description' => xl('Body site, if applicable')
-                                                ), $row['body_site']);
-                                                ?>
-                                        </div>
-                                    </div>
-                                    <div id="body_site_info" class="collapse">
-                                        <a href="#body_site_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Enter the relevant site if applicable.");?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 ordonly foronly">
-                                    <div class="clearfix">
-                                        <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <?php
-                                                generate_form_field(array(
-                                                    'data_type' => 1,
-                                                    'field_id' => 'specimen',
-                                                    'list_id' => 'proc_specimen',
-                                                    'description' => xl('Specimen Type')
-                                                ), $row['specimen']);
-                                                ?>
-                                        </div>
-                                    </div>
-                                    <div id="specimen_info" class="collapse">
-                                        <a href="#specimen_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Enter the specimen type if applicable.");?></p>
-                                        <p><?php echo xlt("This code is optional, but is a good practice to do so.");?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 ordonly foronly">
-                                    <div class="clearfix">
-                                        <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <?php
-                                                generate_form_field(array(
-                                                    'data_type' => 1,
-                                                    'field_id' => 'route_admin',
-                                                    'list_id' => 'proc_route',
-                                                    'description' => xl('Route of administration, if applicable')
-                                                ), $row['route_admin']);
-                                                ?>
-                                        </div>
-                                    </div>
-                                    <div id="administer_via_info" class="collapse">
-                                        <a href="#administer_via_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Enter the specimen type if applicable.");?></p>
-                                        <p><?php echo xlt("This code is optional.");?></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 ordonly foronly">
-                                    <div class="clearfix">
-                                        <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <?php
-                                                generate_form_field(array(
-                                                    'data_type' => 1,
-                                                    'field_id' => 'laterality',
-                                                    'list_id' => 'proc_lat',
-                                                    'description' => xl('Laterality of this procedure, if applicable')
-                                                ), $row['laterality']);
-                                                ?>
-                                        </div>
-                                    </div>
-                                    <div id="laterality_info" class="collapse">
-                                        <a href="#laterality_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Enter the laterality of this procedure, if applicable.");?></p>
-                                        <p><?php echo xlt("This code is optional.");?></p>
-                                    </div>
-                                </div>
-                            </div>
+
+
                             <div class="row">
                                 <div class="col-sm-12 resonly">
                                     <div class="clearfix">
