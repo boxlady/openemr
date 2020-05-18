@@ -86,6 +86,7 @@ $patdata = sqlQuery("SELECT " .
   "FROM patient_data AS p " .
   "WHERE p.pid = ? LIMIT 1", array($pid));
 
+
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
@@ -167,6 +168,17 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}', $patdata['email'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}', $patdata['DOB'], $cpstring);
 
+
+    $logo = '';
+$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
+if (is_file("$webserver_root/$ma_logo_path")) {
+    // Would use max-height here but html2pdf does not support it.
+    // TODO - now use mPDF, so should test if still need this fix
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
+} else {
+    $logo = "<!-- '$ma_logo_path' does not exist. -->";
+}
+
     if ($form_format == "pdf") {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
@@ -180,6 +192,7 @@ if ($_POST['formaction']=="generate") {
         $pdf->ezStream();
         exit;
     } else { // $form_format = html
+         echo $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(40) . "pt' />";
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
         $cpstring = str_replace("\n", "<br>", $cpstring);
         $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
@@ -227,6 +240,7 @@ if ($_POST['formaction']=="generate") {
 } else if (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
+    $bodytext = $logo;
     $fh = fopen("$template_dir/" . convert_very_strict_label($_GET['template']), 'r');
 
     if (!$fh) {
@@ -274,6 +288,7 @@ if ($_POST['formaction']=="generate") {
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
+    $logo;
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
