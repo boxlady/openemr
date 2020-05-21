@@ -76,7 +76,8 @@ $FIELD_TAG = array(
     'PT_PHONE_CELL' => xl('PT_PHONE_CELL'),
     'PT_SSN' => xl('PT_SSN'),
     'PT_EMAIL' => xl('PT_EMAIL'),
-    'PT_DOB' => xl('PT_DOB')
+    'PT_DOB' => xl('PT_DOB'),
+    'PT_MED_LIST' => xl('PT_MED_LIST')
 
 );
 
@@ -104,7 +105,12 @@ $form_body = $_POST['form_body'];
 
 $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
 $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
+$mrow = sqlStatement("Select * From prescriptions where patient_id =?",$pid);
+$med_list ='';
 
+foreach ($mrow as $row ){
+   $med_list .= $row['drug']. " ". $row['notes'] .  "\n"; ;
+}
 $datestr = $form_date;
 $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
 $to_title = $trow['title'] ? $trow['title'] . ' ' : '';
@@ -170,17 +176,30 @@ $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone
 $cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'], $cpstring);
 $cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'], $cpstring);
 $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'], $cpstring);
-
+$cpstring = str_replace('{' . $FIELD_TAG['PT_MED_LIST'] . '}', $med_list, $cpstring);
 
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
 if (is_file("$webserver_root/$ma_logo_path") && $form_format == "html") {
     // Would use max-height here but html2pdf does not support it.
     // TODO - now use mPDF, so should test if still need this fix
-    $logo = "<img src='$web_root/$ma_logo_path' style='align:" . 'center' . "' />";
+    $logo = "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' />";
+}elseif (is_file("$webserver_root/$ma_logo_path") && $form_format == "pdf"){
+    $logo = "$webserver_root/$ma_logo_path";
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
+$fres = sqlQuery(
+    "SELECT * FROM facility " .
+    "WHERE primary_business_entity = 1"
+);
+$facilty_info =  $fres['name'] . "\n";
+$facilty_info .= $fres['street'] . "\n";
+$facilty_info .= $fres['postal_code'] ." ". $fres['city'] . "\n";
+$facilty_info .= "T:".$fres['phone']. "\n";
+$facilty_info .= "E:".$fres['email']. "\n";
+$facilty_info .= "W:".$fres['website']. "\n";
+
 
 if ($form_format == "pdf") {
     $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
@@ -190,14 +209,17 @@ if ($form_format == "pdf") {
         include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
     } else {
         $pdf->selectFont('Helvetica');
-        $pdf->ezImage(("$webserver_root/$ma_logo_path"), 0, 100, '', 'center');
+        $pdf->ezText($facilty_info, 10, ['justification' => 'right']);
+        $pdf->ezImage(("$webserver_root/$ma_logo_path"), 0, 100, 'none', 'center');
         $pdf->ezText($cpstring, 12);
     }
 
     $pdf->ezStream();
     exit;
 } else { // $form_format = html
-echo $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(100) . "pt;'/>";
+
+$facilty_info = str_replace("\n", "<br>", $facilty_info);
+$facilty_info = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $facilty_info);
 $cpstring = text($cpstring); //escape to prevent stored cross script attack
 $cpstring = str_replace("\n", "<br>", $cpstring);
 $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
@@ -205,6 +227,20 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 <html>
 <head>
     <style>
+        .flex-con{
+            display: flex;
+            justify-content: center;
+        }
+
+        .facility {
+            padding-top: 1em;
+            width: 300pt;
+            text-align: right;
+            font-size: 10pt;
+            background: white;
+            color: black;
+        }
+
         body {
             font-family: sans-serif;
             font-weight: normal;
@@ -231,6 +267,18 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     </style>
     <title><?php
         echo xlt('Letter'); ?></title>
+    <div class="flex-con">
+        <div class="col logo">
+            <?php
+            echo $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(75) . "pt;'/>";
+            ?>
+        </div>
+        <div class="col facility">
+            <?php
+            echo $facilty_info; ?>
+        </div>
+    </div>
+
 </head>
 <body>
 <div class='paddingdiv'>
@@ -245,7 +293,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         window.print();
     </script>
 </body>
-</div>
+</html>
 <?php
 exit;
 }
@@ -825,6 +873,10 @@ while ($srow = sqlFetchArray($sres)) {
                             echo '{' . attr($FIELD_TAG['PT_DOB']) . '}'; ?>"><?php
                                 echo xlt('PATIENT'); ?> - <?php
                                 echo xlt('Date of birth'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['PT_MED_LIST']) . '}'; ?>"><?php
+                                echo xlt('PATIENT'); ?> - <?php
+                                echo xlt('Med List'); ?></option>
                         </select>
                     </div>
                     <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
