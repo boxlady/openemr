@@ -812,7 +812,14 @@ foreach ($ar as $key => $val) {
                     echo "<h1>" . xlt($formres["form_name"]) . "</h1>";
                 } else {
                     echo "<div class='text encounter_form'>";
-                    echo "<h1>" . text(xl_form_title($formres["form_name"])) . "</h1>";
+                    $form_name = trim($formres{"form_name"});
+                    if (strpos($formres{"form_name"}, 'CAMOS') !== false ){
+                        $form_name = str_replace('CAMOS-', "", $formres["form_name"] );
+                        $form_name = str_replace('-',' ',$form_name);
+                        echo "<h1>" . text(xl_form_title($form_name)) . "</h1>";
+                    } else {
+                        echo "<h1>" . text(xl_form_title($formres["form_name"])) . "</h1>";
+                    }
                 }
 
                 // show the encounter's date
