@@ -92,19 +92,19 @@ $patdata = sqlQuery(
 );
 
 $adviesdata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = advies",
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'advies'",
     array($pid)
 );
 $infusedata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = infusen",
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'infusen'",
     array($pid)
 );
 $voesingdata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = voedingssupplement",
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'voedingssupplement'",
     array($pid)
 );
 $prescriptiondata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = prescriptions",
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'prescriptions'",
     array($pid)
 );
 
