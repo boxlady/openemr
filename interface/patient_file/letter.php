@@ -77,226 +77,266 @@ $FIELD_TAG = array(
     'PT_SSN' => xl('PT_SSN'),
     'PT_EMAIL' => xl('PT_EMAIL'),
     'PT_DOB' => xl('PT_DOB'),
-    'PT_MED_LIST' => xl('PT_MED_LIST')
+    'PT_MED_LIST' => xl('PT_MED_LIST'),
+    'CAMOS_ADVIES' => xl('CAMOS_ADVIES'),
+    'CAMOS_INFUSEN' => xl('CAMOS_INFUSEN'),
+    'CAMOS_VOEDING' => xl('CAMOS_VOEDING'),
+    'CAMOS_PRESCRIPTIONS' => xl('CAMOS_PRESCRIPTIONS'),
+
 
 );
 
 $patdata = sqlQuery(
-    "SELECT " .
-    "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-    "p.street, p.city, p.state, p.phone_home, p.phone_cell, p.ss, p.email, p.postal_code " .
-    "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1",
+    "SELECT * FROM patient_data WHERE pid =? LIMIT 1",
     array($pid)
 );
 
+$adviesdata = sqlQuery(
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = advies",
+    array($pid)
+);
+$infusedata = sqlQuery(
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = infusen",
+    array($pid)
+);
+$voesingdata = sqlQuery(
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = voedingssupplement",
+    array($pid)
+);
+$prescriptiondata = sqlQuery(
+    "SELECT * FROM form_CAMOS WHERE pid =? and category = prescriptions",
+    array($pid)
+);
 
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
 if ($_POST['formaction'] == "generate") {
-$form_pid = $_POST['form_pid'];
-$form_from = $_POST['form_from'];
-$form_to = $_POST['form_to'];
-$form_date = $_POST['form_date'];
-$form_template = $_POST['form_template'];
-$form_format = $_POST['form_format'];
-$form_body = $_POST['form_body'];
+    $form_pid = $_POST['form_pid'];
+    $form_from = $_POST['form_from'];
+    $form_to = $_POST['form_to'];
+    $form_date = $_POST['form_date'];
+    $form_template = $_POST['form_template'];
+    $form_format = $_POST['form_format'];
+    $form_body = $_POST['form_body'];
 
-$frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
-$trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
-$mrow = sqlStatement("Select * From prescriptions where patient_id =?",$pid);
-$med_list ='';
-
-foreach ($mrow as $row ){
-   $med_list .= $row['drug']. " ". $row['notes'] .  "\n"; ;
-}
-$datestr = $form_date;
-$from_title = $frow['title'] ? $frow['title'] . ' ' : '';
-$to_title = $trow['title'] ? $trow['title'] . ' ' : '';
-
-$cpstring = $_POST['form_body'];
-
-// attempt to save to the autosaved template
-$fh = fopen("$template_dir/autosaved", 'w');
-// translate from definition to the constant
-$temp_bodytext = $cpstring;
-
-foreach ($FIELD_TAG as $key => $value) {
-    $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
-}
-
-if ($GLOBALS['drive_encryption']) {
-    $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
-}
-
-if (!fwrite($fh, $temp_bodytext)) {
-    echo xlt('Error while saving to the file') . ' ' . text($template_dir) . "/autosaved" . ' . ' .
-        xlt('Ensure OpenEMR has write privileges to directory') . ' ' . text($template_dir) . "/ .";
-    die;
-}
-
-fclose($fh);
-
-$cpstring = str_replace('{' . $FIELD_TAG['DATE'] . '}', $datestr, $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_TITLE'] . '}', $from_title, $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_FNAME'] . '}', $frow['fname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_LNAME'] . '}', $frow['lname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_MNAME'] . '}', $frow['mname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_STREET'] . '}', $frow['street'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_CITY'] . '}', $frow['city'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_STATE'] . '}', $frow['state'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_POSTAL'] . '}', $frow['zip'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_VALEDICTORY'] . '}', $frow['valedictory'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONECELL'] . '}', $frow['phonecell'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONE'] . '}', $frow['phone'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['FROM_EMAIL'] . '}', $frow['email'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_TITLE'] . '}', $to_title, $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_FNAME'] . '}', $trow['fname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_LNAME'] . '}', $trow['lname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_MNAME'] . '}', $trow['mname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_STREET'] . '}', $trow['street'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_CITY'] . '}', $trow['city'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_STATE'] . '}', $trow['state'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_POSTAL'] . '}', $trow['zip'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_VALEDICTORY'] . '}', $trow['valedictory'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_FAX'] . '}', $trow['fax'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_PHONE'] . '}', $trow['phone'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_PHONECELL'] . '}', $trow['phonecell'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['TO_ORGANIZATION'] . '}', $trow['organization'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_FNAME'] . '}', $patdata['fname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_LNAME'] . '}', $patdata['lname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_MNAME'] . '}', $patdata['mname'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_STREET'] . '}', $patdata['street'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_CITY'] . '}', $patdata['city'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_STATE'] . '}', $patdata['state'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_POSTAL'] . '}', $patdata['postal_code'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_HOME'] . '}', $patdata['phone_home'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone_cell'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'], $cpstring);
-$cpstring = str_replace('{' . $FIELD_TAG['PT_MED_LIST'] . '}', $med_list, $cpstring);
-
-$logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
-if (is_file("$webserver_root/$ma_logo_path") && $form_format == "html") {
-    // Would use max-height here but html2pdf does not support it.
-    // TODO - now use mPDF, so should test if still need this fix
-    $logo = "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' />";
-}elseif (is_file("$webserver_root/$ma_logo_path") && $form_format == "pdf"){
-    $logo = "$webserver_root/$ma_logo_path";
-} else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
-}
-$fres = sqlQuery(
-    "SELECT * FROM facility " .
-    "WHERE primary_business_entity = 1"
-);
-$facilty_info =  $fres['name'] . "\n";
-$facilty_info .= $fres['street'] . "\n";
-$facilty_info .= $fres['postal_code'] ." ". $fres['city'] . "\n";
-$facilty_info .= "T:".$fres['phone']. "\n";
-$facilty_info .= "E:".$fres['email']. "\n";
-$facilty_info .= "W:".$fres['website']. "\n";
+    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
+    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
+    $mrow = sqlStatement("Select * From prescriptions where patient_id =?", $pid);
 
 
-if ($form_format == "pdf") {
-    $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-    $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+    $med_list = '';
+    $advies_list='';
+    $infuse_list='';
+    $voesing_list='';
+    $prescription_list='';
 
-    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
-        include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
-    } else {
-        $pdf->selectFont('Helvetica');
-        $pdf->ezText($facilty_info, 10, ['justification' => 'right']);
-        $pdf->ezImage(("$webserver_root/$ma_logo_path"), 0, 100, 'none', 'center');
-        $pdf->ezText($cpstring, 12);
+    foreach ($mrow as $row) {
+        $med_list .= $row['drug'] . " " . $row['notes'] . "\n";;
+    }
+    foreach ($adviesdata as $row){
+        $advies_list .= $row['item'] . ": " . $row['content'] . "\n";;
+    }
+    foreach ($infusedata as $row){
+        $infuse_list .= $row['item'] . ": " . $row['content'] . "\n";;
+    }
+    foreach ($prescriptiondata as $row){
+        $prescription_list .= $row['item'] . ": " . $row['content'] . "\n";;
+    }
+    foreach ($voesingdata as $row){
+        $voesing_list .= $row['item'] . ": " . $row['content'] . "\n";;
     }
 
-    $pdf->ezStream();
-    exit;
-} else { // $form_format = html
+    $datestr = $form_date;
+    $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
+    $to_title = $trow['title'] ? $trow['title'] . ' ' : '';
 
-$facilty_info = str_replace("\n", "<br>", $facilty_info);
-$facilty_info = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $facilty_info);
-$cpstring = text($cpstring); //escape to prevent stored cross script attack
-$cpstring = str_replace("\n", "<br>", $cpstring);
-$cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
-?>
-<html>
-<head>
-    <style>
-        .flex-con{
-            display: flex;
-            justify-content: center;
+    $cpstring = $_POST['form_body'];
+
+// attempt to save to the autosaved template
+    $fh = fopen("$template_dir/autosaved", 'w');
+// translate from definition to the constant
+    $temp_bodytext = $cpstring;
+
+    foreach ($FIELD_TAG as $key => $value) {
+        $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+    }
+
+    if (!fwrite($fh, $temp_bodytext)) {
+        echo xlt('Error while saving to the file') . ' ' . text($template_dir) . "/autosaved" . ' . ' .
+            xlt('Ensure OpenEMR has write privileges to directory') . ' ' . text($template_dir) . "/ .";
+        die;
+    }
+
+    fclose($fh);
+
+    $cpstring = str_replace('{' . $FIELD_TAG['DATE'] . '}', $datestr, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_TITLE'] . '}', $from_title, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_FNAME'] . '}', $frow['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_LNAME'] . '}', $frow['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_MNAME'] . '}', $frow['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STREET'] . '}', $frow['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_CITY'] . '}', $frow['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STATE'] . '}', $frow['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_POSTAL'] . '}', $frow['zip'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_VALEDICTORY'] . '}', $frow['valedictory'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONECELL'] . '}', $frow['phonecell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONE'] . '}', $frow['phone'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_EMAIL'] . '}', $frow['email'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_TITLE'] . '}', $to_title, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FNAME'] . '}', $trow['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_LNAME'] . '}', $trow['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_MNAME'] . '}', $trow['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STREET'] . '}', $trow['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_CITY'] . '}', $trow['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STATE'] . '}', $trow['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_POSTAL'] . '}', $trow['zip'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_VALEDICTORY'] . '}', $trow['valedictory'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FAX'] . '}', $trow['fax'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONE'] . '}', $trow['phone'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONECELL'] . '}', $trow['phonecell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_ORGANIZATION'] . '}', $trow['organization'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_FNAME'] . '}', $patdata['fname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_LNAME'] . '}', $patdata['lname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_MNAME'] . '}', $patdata['mname'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STREET'] . '}', $patdata['street'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_CITY'] . '}', $patdata['city'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STATE'] . '}', $patdata['state'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_POSTAL'] . '}', $patdata['postal_code'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_HOME'] . '}', $patdata['phone_home'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone_cell'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_MED_LIST'] . '}', $med_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_ADVIES'] . '}', $advies_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_INFUSEN'] . '}', $infuse_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_PRESCRIPTIONS'] . '}', $prescription_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_VOEDING'] . '}', $voesing_list, $cpstring);
+
+    $logo = '';
+    $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
+    if (is_file("$webserver_root/$ma_logo_path") && $form_format == "html") {
+        // Would use max-height here but html2pdf does not support it.
+        // TODO - now use mPDF, so should test if still need this fix
+        $logo = "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' />";
+    } elseif (is_file("$webserver_root/$ma_logo_path") && $form_format == "pdf") {
+        $logo = "$webserver_root/$ma_logo_path";
+    } else {
+        $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    }
+    $fres = sqlQuery(
+        "SELECT * FROM facility " .
+        "WHERE primary_business_entity = 1"
+    );
+    $facilty_info = $fres['name'] . "\n";
+    $facilty_info .= $fres['street'] . "\n";
+    $facilty_info .= $fres['postal_code'] . " " . $fres['city'] . "\n";
+    $facilty_info .= "T:" . $fres['phone'] . "\n";
+    $facilty_info .= "E:" . $fres['email'] . "\n";
+    $facilty_info .= "W:" . $fres['website'] . "\n";
+
+
+    if ($form_format == "pdf") {
+        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
+
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
+            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
+        } else {
+            $pdf->selectFont('Helvetica');
+            $pdf->ezText($facilty_info, 10, ['justification' => 'right']);
+            $pdf->ezImage(("$webserver_root/$ma_logo_path"), 0, 100, 'none', 'center');
+            $pdf->ezText($cpstring, 12);
         }
 
-        .facility {
-            padding-top: 1em;
-            width: 300pt;
-            text-align: right;
-            font-size: 10pt;
-            background: white;
-            color: black;
-        }
+        $pdf->ezStream();
+        exit;
+    } else { // $form_format = html
 
-        body {
-            font-family: sans-serif;
-            font-weight: normal;
-            font-size: 12pt;
-            background: white;
-            color: black;
-        }
+        $facilty_info = str_replace("\n", "<br>", $facilty_info);
+        $facilty_info = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $facilty_info);
+        $cpstring = text($cpstring); //escape to prevent stored cross script attack
+        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
+        ?>
+        <html>
+        <head>
+            <style>
+                .flex-con {
+                    display: flex;
+                    justify-content: center;
+                }
 
-        .paddingdiv {
-            width: 524pt;
-            padding: 0pt;
-            margin-top: 50pt;
-        }
+                .facility {
+                    padding-top: 1em;
+                    width: 300pt;
+                    text-align: right;
+                    font-size: 10pt;
+                    background: white;
+                    color: black;
+                }
 
-        .navigate {
-            margin-top: 2.5em;
-        }
+                body {
+                    font-family: sans-serif;
+                    font-weight: normal;
+                    font-size: 12pt;
+                    background: white;
+                    color: black;
+                }
 
-        @media print {
-            .navigate {
-                display: none;
-            }
-        }
-    </style>
-    <title><?php
-        echo xlt('Letter'); ?></title>
-    <div class="flex-con">
-        <div class="col logo">
+                .paddingdiv {
+                    width: 524pt;
+                    padding: 0pt;
+                    margin-top: 50pt;
+                }
+
+                .navigate {
+                    margin-top: 2.5em;
+                }
+
+                @media print {
+                    .navigate {
+                        display: none;
+                    }
+                }
+            </style>
+            <title><?php
+                echo xlt('Letter'); ?></title>
+            <div class="flex-con">
+                <div class="col logo">
+                    <?php
+                    echo $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(75) . "pt;'/>";
+                    ?>
+                </div>
+                <div class="col facility">
+                    <?php
+                    echo $facilty_info; ?>
+                </div>
+            </div>
+
+        </head>
+        <body>
+        <div class='paddingdiv'>
             <?php
-            echo $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(75) . "pt;'/>";
-            ?>
-        </div>
-        <div class="col facility">
-            <?php
-            echo $facilty_info; ?>
-        </div>
-    </div>
-
-</head>
-<body>
-<div class='paddingdiv'>
-    <?php
-    echo $cpstring; ?>
-    <div class="navigate">
-        <a href='<?php
-        echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php
-            echo xlt('Back'); ?>)</a>
-    </div>
-    <script language='JavaScript'>
-        window.print();
-    </script>
-</body>
-</html>
-<?php
-exit;
-}
+            echo $cpstring; ?>
+            <div class="navigate">
+                <a href='<?php
+                echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php
+                    echo xlt('Back'); ?>)</a>
+            </div>
+            <script language='JavaScript'>
+                window.print();
+            </script>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
 } else {
     if (isset($_GET['template']) && $_GET['template'] != "") {
         // utilized to go back to autosaved template
