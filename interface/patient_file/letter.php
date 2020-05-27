@@ -132,20 +132,21 @@ if ($_POST['formaction'] == "generate") {
     $prescription_list='';
 
     foreach ($mrow as $row) {
-        $med_list .= $row['drug'] . " " . $row['notes'] . "\n";;
+        $med_list .= $row['drug'] . " " . $row['notes'] . "\n";
     }
     foreach ($adviesdata as $row){
-        $advies_list .= $row['item'] . ": " . $row['content'] . "\n";;
+        $advies_list .= $row['item'] . ": " . $row['content'];
     }
     foreach ($infusedata as $row){
-        $infuse_list .= $row['item'] . ": " . $row['content'] . "\n";;
+        $infuse_list .= $row['item'] . ": " . $row['content'];
     }
     foreach ($prescriptiondata as $row){
-        $prescription_list .= $row['item'] . ": " . $row['content'] . "\n";;
+        $prescription_list .= $row['item'] . ": " . $row['content'];
     }
-    foreach ($voesingdata as $row){
-        $voesing_list .= $row['item'] . ": " . $row['content'] . "\n";;
+    foreach ($voesingdata as $row) {
+        $voesing_list .= $row['item'] . ": " . $row['content'];
     }
+
 
     $datestr = $form_date;
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
