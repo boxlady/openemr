@@ -111,7 +111,7 @@ $prescriptiondata = sqlStatement(
 );
 
 $listdata = sqlStatement(
-    "SELECT * FROM lists WHERE pid =? and Type =? ",
+    "SELECT * FROM lists WHERE pid =? and type =? ",
     array($pid,'medication')
 );
 
@@ -157,7 +157,7 @@ if ($_POST['formaction'] == "generate") {
     }
 
     foreach ($listdata as $row) {
-        $list_list .= $row['Title'] . " " . $row['comment'];
+        $list_list .= $row['title'] . " " . $row['comment'];
     }
 
     $datestr = $form_date;
