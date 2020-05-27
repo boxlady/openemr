@@ -917,6 +917,22 @@ while ($srow = sqlFetchArray($sres)) {
                             echo '{' . attr($FIELD_TAG['PT_MED_LIST']) . '}'; ?>"><?php
                                 echo xlt('PATIENT'); ?> - <?php
                                 echo xlt('Med List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['CAMOS_ADVIES']) . '}'; ?>"><?php
+                                echo xlt('CAMOS'); ?> - <?php
+                                echo xlt('Advies List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['CAMOS_INFUSEN']) . '}'; ?>"><?php
+                                echo xlt('CAMOS'); ?> - <?php
+                                echo xlt('Infusen List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['CAMOS_PRESCRIPTIONS']) . '}'; ?>"><?php
+                                echo xlt('CAMOS'); ?> - <?php
+                                echo xlt('PRESCRIPTIONS List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['CAMOS_VOEDING']) . '}'; ?>"><?php
+                                echo xlt('CAMOS'); ?> - <?php
+                                echo xlt('VOEDING List'); ?></option>
                         </select>
                     </div>
                     <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
