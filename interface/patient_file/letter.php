@@ -91,19 +91,19 @@ $patdata = sqlQuery(
     array($pid)
 );
 
-$adviesdata = sqlQuery(
+$adviesdata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
     array($pid,'advies')
 );
-$infusedata = sqlQuery(
+$infusedata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
     array($pid,'infusen' )
 );
-$voesingdata = sqlQuery(
+$voesingdata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
     array($pid,'voedingssupplement' )
 );
-$prescriptiondata = sqlQuery(
+$prescriptiondata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
     array($pid,'prescriptions')
 );
@@ -239,7 +239,7 @@ if ($_POST['formaction'] == "generate") {
     $facilty_info .= $fres['postal_code'] . " " . $fres['city'] . "\n";
     $facilty_info .= "T:" . $fres['phone'] . "\n";
     $facilty_info .= "E:" . $fres['email'] . "\n";
-    $facilty_info .= "W:" . $fres['website'] . "\n";
+    $facilty_info .= $fres['website'] . "\n";
 
 
     if ($form_format == "pdf") {
