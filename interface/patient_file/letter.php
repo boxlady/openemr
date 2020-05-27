@@ -82,6 +82,8 @@ $FIELD_TAG = array(
     'CAMOS_INFUSEN' => xl('CAMOS_INFUSEN'),
     'CAMOS_VOEDING' => xl('CAMOS_VOEDING'),
     'CAMOS_PRESCRIPTIONS' => xl('CAMOS_PRESCRIPTIONS'),
+    'PT_MED_LIST' => xl('MED_LIST'),
+
 
 
 );
@@ -108,6 +110,11 @@ $prescriptiondata = sqlStatement(
     array($pid,'prescriptions')
 );
 
+$listdata = sqlStatement(
+    "SELECT * FROM lists WHERE pid =? and Type =? ",
+    array($pid,'medication')
+);
+
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
@@ -130,6 +137,8 @@ if ($_POST['formaction'] == "generate") {
     $infuse_list='';
     $voesing_list='';
     $prescription_list='';
+    $list_list ='';
+
 
     foreach ($mrow as $row) {
         $med_list .= $row['drug'] . " " . $row['notes'] . "\n";
@@ -147,6 +156,9 @@ if ($_POST['formaction'] == "generate") {
         $voesing_list .= $row['item'] . ": " . $row['content'];
     }
 
+    foreach ($listdata as $row) {
+        $list_list .= $row['Title'] . " " . $row['comment'];
+    }
 
     $datestr = $form_date;
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
@@ -218,6 +230,8 @@ if ($_POST['formaction'] == "generate") {
     $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_INFUSEN'] . '}', $infuse_list, $cpstring);
     $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_PRESCRIPTIONS'] . '}', $prescription_list, $cpstring);
     $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_VOEDING'] . '}', $voesing_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_VOEDING'] . '}', $voesing_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['MED_LIST'] . '}', $list_list, $cpstring);
 
     $logo = '';
     $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
@@ -934,6 +948,10 @@ while ($srow = sqlFetchArray($sres)) {
                             echo '{' . attr($FIELD_TAG['CAMOS_VOEDING']) . '}'; ?>"><?php
                                 echo xlt('CAMOS'); ?> - <?php
                                 echo xlt('VOEDING List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['MED_LIST']) . '}'; ?>"><?php
+                                echo xlt('MED/INFUSEN'); ?> - <?php
+                                echo xlt('Med/Infusen - List'); ?></option>
                         </select>
                     </div>
                     <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
