@@ -157,7 +157,7 @@ if ($_POST['formaction'] == "generate") {
     }
 
     foreach ($listdata as $row) {
-        $list_list .= $row['title'] . " " . $row['comment'];
+        $list_list .= $row['title'] . " " . $row['comment']. "\n";
     }
 
     $datestr = $form_date;
