@@ -92,20 +92,20 @@ $patdata = sqlQuery(
 );
 
 $adviesdata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'advies'",
-    array($pid)
+    "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
+    array($pid,'advies')
 );
 $infusedata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'infusen'",
-    array($pid)
+    "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
+    array($pid,'infusen' )
 );
 $voesingdata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'voedingssupplement'",
-    array($pid)
+    "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
+    array($pid,'voedingssupplement' )
 );
 $prescriptiondata = sqlQuery(
-    "SELECT * FROM form_CAMOS WHERE pid =? and category = 'prescriptions'",
-    array($pid)
+    "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
+    array($pid,'prescriptions')
 );
 
 $alertmsg = ''; // anything here pops up in an alert box
