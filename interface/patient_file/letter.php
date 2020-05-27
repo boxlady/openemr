@@ -82,7 +82,7 @@ $FIELD_TAG = array(
     'CAMOS_INFUSEN' => xl('CAMOS_INFUSEN'),
     'CAMOS_VOEDING' => xl('CAMOS_VOEDING'),
     'CAMOS_PRESCRIPTIONS' => xl('CAMOS_PRESCRIPTIONS'),
-    'PT_MED_LIST' => xl('MED_LIST'),
+    'MED_LIST' => xl('MED_LIST'),
 
 
 
