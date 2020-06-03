@@ -83,6 +83,10 @@ $FIELD_TAG = array(
     'CAMOS_VOEDING' => xl('CAMOS_VOEDING'),
     'CAMOS_PRESCRIPTIONS' => xl('CAMOS_PRESCRIPTIONS'),
     'MED_LIST' => xl('MED_LIST'),
+    'HUISARTS_NAAM' => xl('HUISARTS_NAAM'),
+    'HUISARTS_STRAAT' => xl('HUISARTS_STRAAT'),
+    'HUISARTS_POSTCODE' => xl('HUISARTS_POSTCODE'),
+    'HUISARTS_STAD' => xl('HUISARTS_STAD'),
 
 
 
@@ -95,24 +99,24 @@ $patdata = sqlQuery(
 
 $adviesdata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
-    array($pid,'advies')
+    array($pid, 'advies')
 );
 $infusedata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
-    array($pid,'infusen' )
+    array($pid, 'infusen')
 );
 $voesingdata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
-    array($pid,'voedingssupplement' )
+    array($pid, 'voedingssupplement')
 );
 $prescriptiondata = sqlStatement(
     "SELECT * FROM form_CAMOS WHERE pid =? and category =? ",
-    array($pid,'prescriptions')
+    array($pid, 'prescriptions')
 );
 
 $listdata = sqlStatement(
     "SELECT * FROM lists WHERE pid =? and type =? ",
-    array($pid,'medication')
+    array($pid, 'medication')
 );
 
 $alertmsg = ''; // anything here pops up in an alert box
@@ -133,23 +137,24 @@ if ($_POST['formaction'] == "generate") {
 
 
     $med_list = '';
-    $advies_list='';
-    $infuse_list='';
-    $voesing_list='';
-    $prescription_list='';
-    $list_list ='';
+    $advies_list = '';
+    $infuse_list = '';
+    $voesing_list = '';
+    $prescription_list = '';
+    $list_list = '';
+
 
 
     foreach ($mrow as $row) {
         $med_list .= $row['drug'] . " " . $row['notes'] . "\n";
     }
-    foreach ($adviesdata as $row){
+    foreach ($adviesdata as $row) {
         $advies_list .= $row['item'] . ": " . $row['content'];
     }
-    foreach ($infusedata as $row){
+    foreach ($infusedata as $row) {
         $infuse_list .= $row['item'] . ": " . $row['content'];
     }
-    foreach ($prescriptiondata as $row){
+    foreach ($prescriptiondata as $row) {
         $prescription_list .= $row['item'] . ": " . $row['content'];
     }
     foreach ($voesingdata as $row) {
@@ -157,7 +162,7 @@ if ($_POST['formaction'] == "generate") {
     }
 
     foreach ($listdata as $row) {
-        $list_list .= $row['title'] . " " . $row['comment']. "\n";
+        $list_list .= $row['title'] . " " . $row['comment'] . "\n";
     }
 
     $datestr = $form_date;
@@ -232,6 +237,12 @@ if ($_POST['formaction'] == "generate") {
     $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_VOEDING'] . '}', $voesing_list, $cpstring);
     $cpstring = str_replace('{' . $FIELD_TAG['CAMOS_VOEDING'] . '}', $voesing_list, $cpstring);
     $cpstring = str_replace('{' . $FIELD_TAG['MED_LIST'] . '}', $list_list, $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_STRAAT'] . '}', $patdata['huisarts'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_NAAM'] . '}', $patdata['huisarts_name'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_POSTCODE'] . '}', $patdata['huisarts_postcode'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_STAD'] . '}', $patdata['huisarts_city'], $cpstring);
+
+
 
     $logo = '';
     $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
@@ -952,6 +963,22 @@ while ($srow = sqlFetchArray($sres)) {
                             echo '{' . attr($FIELD_TAG['MED_LIST']) . '}'; ?>"><?php
                                 echo xlt('MED/INFUSEN'); ?> - <?php
                                 echo xlt('Med/Infusen - List'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['HUISARTS_NAAM']) . '}'; ?>"><?php
+                                echo xlt('HUISARTS'); ?> - <?php
+                                echo xlt('NAAM'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['HUISARTS_STRAAT']) . '}'; ?>"><?php
+                                echo xlt('HUISARTS'); ?> - <?php
+                                echo xlt('STRAAT'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['HUISARTS_POSTCODE']) . '}'; ?>"><?php
+                                echo xlt('HUISARTS'); ?> - <?php
+                                echo xlt('POSTCODE'); ?></option>
+                            <option value="<?php
+                            echo '{' . attr($FIELD_TAG['HUISARTS_STAD']) . '}'; ?>"><?php
+                                echo xlt('HUISARTS'); ?> - <?php
+                                echo xlt('STAD'); ?></option>
                         </select>
                     </div>
                     <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
