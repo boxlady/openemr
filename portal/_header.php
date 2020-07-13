@@ -206,7 +206,7 @@ use OpenEMR\Core\Header;
 
                             <li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"
                                                       data-parent="#panelgroup"> <i class="fa fa-download"></i>
-                                    <span><?php echo xlt('Download Lab Documents'); ?></span></a></li>
+                                    <span><?php echo xlt('Download Documenten'); ?></span></a></li>
                         <?php } ?>
                     </ul>
                 </li>
