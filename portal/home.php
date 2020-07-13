@@ -429,7 +429,7 @@ if (isset($_FILES['fileToUpload'])) {
                         <header class="panel-heading"> <?php echo xlt('Download Documenten'); ?> </header>
                         <div id="docsdownload" class="panel-body">
                             <div>
-                                <span class="text"><?php echo xlt('Download all patient documenten'); ?></span>
+                                <span class="text"><?php echo xlt('Download alle documenten'); ?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                     <input type="button" class="generateDoc_download"
                                            value="<?php echo xla('Download'); ?>"/>
