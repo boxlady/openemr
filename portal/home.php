@@ -56,9 +56,9 @@ if (isset($_FILES['fileToUpload'])) {
     require_once("../interface/globals.php");
     require_once("$srcdir/patient.inc");
 
-    function addtoCategory($category_id = '34', $document_id){
-        sqlStatement("Insert into categories_to_documents(category_id, document_id) VALUE =?", $category_id, $document_id);
-        
+    function addtoCategory($category_id = '34', $document_id)
+    {
+        sqlStatement("Insert into categories_to_documents(category_id, document_id) VALUE (?,?)", $category_id, $document_id);
     }
 
     $patient_id = $pid;
@@ -109,7 +109,6 @@ if (isset($_FILES['fileToUpload'])) {
             echo(xlt('Bestand uploaden is mislukt'));
             //echo(xlt('File failed'));
             echo '</div>';
-
         }
     }
 }
@@ -244,17 +243,21 @@ if (isset($_FILES['fileToUpload'])) {
     <!-- Main content -->
     <section class="container-fluid content panel-group" id="panelgroup">
         <div id="popwait" class="alert alert-warning" style="font-size:18px">
-            <strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
+            <strong><?php
+                echo xlt('Working!'); ?></strong> <?php
+            echo xlt('Please wait...'); ?></div>
         <div class="row collapse" id="lists">
             <div class="col-sm-6">
                 <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Medications'); ?> </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Medications'); ?> </header>
                     <div id="medicationlist" class="panel-body"></div>
 
                     <div class="panel-footer"></div>
                 </div>
                 <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Medications Allergy List'); ?>  </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Medications Allergy List'); ?>  </header>
                     <div id="allergylist" class="panel-body"></div>
 
                     <div class="panel-footer"></div>
@@ -262,13 +265,15 @@ if (isset($_FILES['fileToUpload'])) {
             </div><!-- /.col -->
             <div class="col-sm-6">
                 <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Issues List'); ?></header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Issues List'); ?></header>
                     <div id="problemslist" class="panel-body"></div>
 
                     <div class="panel-footer"></div>
                 </div>
                 <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Amendment List'); ?> </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Amendment List'); ?> </header>
                     <div id="amendmentslist" class="panel-body"></div>
 
                     <div class="panel-footer"></div>
@@ -276,7 +281,8 @@ if (isset($_FILES['fileToUpload'])) {
             </div><!-- /.col -->
             <div class="col-sm-12">
                 <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Lab Results'); ?>  </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Lab Results'); ?>  </header>
                     <div id="labresults" class="panel-body"></div>
                     <div class="panel-footer"></div>
                 </div><!-- /.panel -->
@@ -286,53 +292,61 @@ if (isset($_FILES['fileToUpload'])) {
         <div class="row">
             <div class="col-sm-8">
                 <div class="panel panel-primary collapse" id="upload_failed">
-                    <header class="panel-heading"><?php echo xlt('upload_failed'); ?>  </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('upload_failed'); ?>  </header>
                     <div id="upload" class="panel-body"></div>
                     <div class="panel-footer"></div>
                 </div>
             </div>
             <div class="col-sm-8">
                 <div class="panel panel-primary collapse" id="upload_okay">
-                    <header class="panel-heading"><?php echo xlt('upload_okay'); ?>  </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('upload_okay'); ?>  </header>
                     <div id="upload" class="panel-body"></div>
                     <div class="panel-footer"></div>
                 </div>
             </div>
             <!-- /.col -->
-            <?php if ($GLOBALS['portal_onsite_document_upload']) { ?>
+            <?php
+            if ($GLOBALS['portal_onsite_document_upload']) { ?>
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="uploadpanel">
-                        <header class="panel-heading"> <?php echo xlt('Uploaden Documenten'); ?> </header>
+                        <header class="panel-heading"> <?php
+                            echo xlt('Uploaden Documenten'); ?> </header>
                         <div id="docsupload" class="panel-body">
                             <div>
-                                <span class="text"><?php echo xlt('Uploaden PDF documenten'); ?></span>
+                                <span class="text"><?php
+                                    echo xlt('Uploaden PDF documenten'); ?></span>
                                 <form enctype="multipart/form-data" name='upload_submit' id='upload_submit' method='post'>
-                                    <input type="file" name="fileToUpload" id="fileToUpload" >
+                                    <input type="file" name="fileToUpload" id="fileToUpload">
                                     <input type="button" class="upload_docs"
-                                           value="<?php echo xla('Upload'); ?>"/>
+                                           value="<?php
+                                           echo xla('Upload'); ?>"/>
                                 </form>
                             </div>
                         </div><!-- /.panel-body -->
                         <div class="panel-footer"></div>
                     </div>
                 </div><!-- /.col -->
-            <?php } ?>
+            <?php
+            } ?>
         </div>
-        <?php if (!$GLOBALS['allow_portal_appointments']) { ?>
+        <?php
+        if (!$GLOBALS['allow_portal_appointments']) { ?>
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="appointmentpanel">
-                        <header class="panel-heading"><?php echo xlt('Appointments'); ?>  </header>
+                        <header class="panel-heading"><?php
+                            echo xlt('Appointments'); ?>  </header>
                         <div id="appointmentslist" class="panel-body">
                             <?php
-                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-                                "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
-                                "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
-                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-                                "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
-                            $res = sqlStatement($query, array(
-                                $pid
-                            ));
+                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " . "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " . "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " . "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " . "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
+                            $res = sqlStatement(
+                                $query,
+                                array(
+                                    $pid,
+                                )
+                            );
 
                             if (sqlNumRows($res) > 0) {
                                 $count = 0;
@@ -359,8 +373,7 @@ if (isset($_FILES['fileToUpload'])) {
                                     }
 
                                     echo "<tr><td><p>";
-                                    echo "<a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
-                                        "' title='" . attr($etitle) . "'>";
+                                    echo "<a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" . "' title='" . attr($etitle) . "'>";
                                     echo "<b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
                                     echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br>";
                                     echo text($row ['pc_catname']) . "<br><b>";
@@ -381,9 +394,11 @@ if (isset($_FILES['fileToUpload'])) {
                             echo '</tbody></table>';
                             ?>
                             <div style='margin: 5px 0 5px'>
-                                <a href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)">
+                                <a href='#' onclick="editAppointment('add',<?php
+                                echo attr_js($pid); ?>)">
                                     <button
-                                        class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button>
+                                            class='btn btn-primary pull-right'><?php
+                                        echo xlt('Schedule New Appointment'); ?></button>
                                 </a>
                             </div>
                         </div>
@@ -391,25 +406,31 @@ if (isset($_FILES['fileToUpload'])) {
                     </div><!-- /.panel -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
-        <?php } ?>
-        <?php if ($GLOBALS['portal_two_payments']) { ?>
+        <?php
+        } ?>
+        <?php
+        if ($GLOBALS['portal_two_payments']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="paymentpanel">
-                        <header class="panel-heading"> <?php echo xlt('Payments'); ?> </header>
+                        <header class="panel-heading"> <?php
+                            echo xlt('Payments'); ?> </header>
                         <div id="payment" class="panel-body"></div>
                         <div class="panel-footer">
                         </div>
                     </div>
                 </div> <!--/.col  -->
             </div>
-        <?php } ?>
-        <?php if ($GLOBALS['allow_portal_chat']) { ?>
+        <?php
+        } ?>
+        <?php
+        if ($GLOBALS['allow_portal_chat']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;"
                          id="messagespanel">
-                        <!-- <header class="panel-heading"><?php //echo xlt('Secure Chat'); ?>  </header>-->
+                        <!-- <header class="panel-heading"><?php
+                        //echo xlt('Secure Chat'); ?>  </header>-->
                         <div id="messages" class="panel-body"
                              style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;">
                             <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
@@ -417,39 +438,48 @@ if (isset($_FILES['fileToUpload'])) {
                     </div>
                 </div><!-- /.col -->
             </div>
-        <?php } ?>
+        <?php
+        } ?>
         <div class="row">
             <div class="col-sm-8">
                 <div class="panel panel-primary collapse" id="reportpanel">
-                    <header class="panel-heading"><?php echo xlt('Reports'); ?>  </header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Reports'); ?>  </header>
                     <div id="reports" class="panel-body"></div>
                     <div class="panel-footer"></div>
                 </div>
             </div>
             <!-- /.col -->
-            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
+            <?php
+            if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="downloadpanel">
-                        <header class="panel-heading"> <?php echo xlt('Download Documenten'); ?> </header>
+                        <header class="panel-heading"> <?php
+                            echo xlt('Download Documenten'); ?> </header>
                         <div id="docsdownload" class="panel-body">
                             <div>
-                                <span class="text"><?php echo xlt('Download alle documenten'); ?></span>
+                                <span class="text"><?php
+                                    echo xlt('Download alle documenten'); ?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                     <input type="button" class="generateDoc_download"
-                                           value="<?php echo xla('Download'); ?>"/>
+                                           value="<?php
+                                           echo xla('Download'); ?>"/>
                                 </form>
                             </div>
                         </div><!-- /.panel-body -->
                         <div class="panel-footer"></div>
                     </div>
                 </div><!-- /.col -->
-            <?php } ?>
+            <?php
+            } ?>
         </div>
-        <?php if ($GLOBALS['portal_two_ledger']) { ?>
+        <?php
+        if ($GLOBALS['portal_two_ledger']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="ledgerpanel">
-                        <header class="panel-heading"><?php echo xlt('Ledger'); ?> </header>
+                        <header class="panel-heading"><?php
+                            echo xlt('Ledger'); ?> </header>
                         <div id="patledger" class="panel-body"></div>
                         <div class="panel-footer">
                             <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
@@ -457,11 +487,13 @@ if (isset($_FILES['fileToUpload'])) {
                     </div>
                 </div><!-- /.col -->
             </div>
-        <?php } ?>
+        <?php
+        } ?>
         <div class="row">
             <div class="col-sm-12">
                 <div class="panel panel-primary collapse" id="profilepanel">
-                    <header class="panel-heading"><?php echo xlt('Profile'); ?></header>
+                    <header class="panel-heading"><?php
+                        echo xlt('Profile'); ?></header>
                     <div id="profilereport" class="panel-body"></div>
                     <div class="panel-footer"></div>
                 </div>
