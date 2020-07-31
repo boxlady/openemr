@@ -56,9 +56,13 @@ if (isset($_FILES['fileToUpload'])) {
     require_once("../interface/globals.php");
     require_once("$srcdir/patient.inc");
 
+    function addtoCategory($category_id = '34', $document_id){
+        sqlStatement("Insert into categories_to_documents(category_id, document_id) VALUE =?", $category_id, $document_id);
+        
+    }
 
     $patient_id = $pid;
-    $query = "select id from categories where name = 'Onsite Portal'";
+    $query = "select id from categories where name = 'Uploaden'";
     $result = sqlStatement($query);
     $ID = sqlFetchArray($result);
     $category_id = $ID['id'];
@@ -98,8 +102,8 @@ if (isset($_FILES['fileToUpload'])) {
 
         $result = addNewDocument($name, $type, $tmp_name, $error, $size, $owner, $patient_id, $category_id);
         if ($result) {
+            addtoCategory('34', $result['doc_id']);
             echo(xlt('Bestand uploaden is voltooid'));
-            //echo(xlt('File was Uploaded'));
             echo '</div>';
         } else {
             echo(xlt('Bestand uploaden is mislukt'));
