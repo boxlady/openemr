@@ -58,7 +58,7 @@ if (isset($_FILES['fileToUpload'])) {
 
     function addtoCategory($category_id = '34', $document_id)
     {
-        sqlStatement("Insert into categories_to_documents(category_id, document_id) VALUE (?,?)", $category_id, $document_id);
+        sqlStatement("Insert into categories_to_documents(category_id, document_id) VALUE (?,?)", array($category_id, $document_id));
     }
 
     $patient_id = $pid;
