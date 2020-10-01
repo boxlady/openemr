@@ -870,7 +870,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
-    "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
+    "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, a.pc_room, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM  ( $table AS a ) " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid ".
@@ -1008,7 +1008,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
          $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
          $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
          $tmp['patient_name'], $tmp['owner_name'],  $tmp['patient_dob'],
-         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
+         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],  $tmp['pc_room'],
          $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
 
         // grab the name of the topic
@@ -1118,7 +1118,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['group_status'] = $tmp['group_status'];
         $counselors = getProvidersOfEvent($tmp['eid']);
         $events[$i]['group_counselors'] = $counselors;
-
+        
+        if ($tmp['pc_room'] != "") {
+            $q = sqlQuery("select title from list_options where list_id = 'patient_flow_board_rooms' and option_id =? ", array($tmp['pc_room']));
+            $events[$i]['pc_room'] = $q['title'];
+        } else {
+            $events[$i]['pc_room'] = '';
+        }
+        
         $i++;
     }
 

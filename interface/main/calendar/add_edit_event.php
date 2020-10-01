@@ -1295,6 +1295,7 @@ function find_available(extra) {
     // when making an appointment for a specific provider
     var s = document.forms[0].form_provider;
     var f = document.forms[0].facility;
+    var r = document.forms[0].form_room.value;
     <?php if ($userid != 0) { ?>
         s = document.forms[0].form_provider.value;
         f = document.forms[0].facility.value;
@@ -1304,12 +1305,17 @@ function find_available(extra) {
     <?php }?>
     var c = document.forms[0].form_category;
     var formDate = document.forms[0].form_date;
+    var ampm = 0;
+    if (document.forms[0].form_ampm.value == '2' && document.forms[0].form_hour.value != 12)  ampm = 12;
+    var startTime = (+document.forms[0].form_hour.value + +ampm) + ':' + document.forms[0].form_minute.value;
     let title = <?php echo xlj('Available Appointments Calendar'); ?>;
     dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
         '?providerid=' + s +
         '&catid=' + c.options[c.selectedIndex].value +
         '&facility=' + f +
+        '&room=' + r +
         '&startdate=' + formDate.value +
+        '&startTime=' + startTime +
         '&evdur=' + document.forms[0].form_duration.value +
         '&eid=<?php echo 0 + $eid; ?>' + extra,
         '', 725, 200, '', title);
@@ -1741,7 +1747,7 @@ function isRegularRepeat($repeat)
         </span>
         <span class="input-group" id="days">
             <?php
-            foreach (array(1 => xl('Su{{Sunday}}'), 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
+            foreach (array(1 => xl('Su{{Sunday}}'), 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('Wo'),
                 5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value) {
                 echo "<div><label><input type='checkbox' name='day_" . attr($key) . "'";
                 //Checks appropriate days according to days in recurrence string.
@@ -2042,8 +2048,9 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
+        var room = f.form_room.value;
         if (f.form_ampm.value == '2' && mins < 720) mins += 720;
-        find_available('&cktime=' + mins);
+        find_available('&cktime=' + mins +'&room=' + room);
     }
     else {
         top.restoreSession();

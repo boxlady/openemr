@@ -82,6 +82,16 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
     }
 }
 
+function checkRoom($date, $starttime, $dur, $room) {
+    $udate = strtotime($starttime, $date);
+    $end = strtotime("+" . $dur . " minutes", $udate);
+    $endTime = date('H:i', ($end));
+    $start = date('H:i', ($udate));
+    $room = sqlQuery("Select * from openemr_postcalendar_events where pc_room = '$room' AND pc_eventDate = '$date' and pc_startTime BETWEEN '$start' AND '$endTime'");
+    echo $room;
+    return $room;
+}
+
 // seconds per time slot
 $slotsecs = $GLOBALS['calendar_interval'] * 60;
 
@@ -95,6 +105,10 @@ if ($input_catid) {
 }
 
 $info_msg = "";
+$RoomOccupied = false;
+$startTime = $_REQUEST['startTime'];
+$room = $_REQUEST['room'];
+$dur = $_REQUEST['evdur'];
 
 $searchdays = 7; // default to a 1-week lookahead
 if ($_REQUEST['searchdays']) {
@@ -159,7 +173,7 @@ if ($_REQUEST['providerid']) {
 
     // Note there is no need to sort the query results.
     $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
+        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_endTime, pc_room  " .
         "FROM openemr_postcalendar_events " .
         "WHERE pc_aid = ? AND " .
         "pc_eid != ? AND " .
@@ -254,6 +268,10 @@ if (isset($_REQUEST['cktime'])) {
             if (isset($prov[$j])) {
                 $isProv = 'TRUE';
             }
+        }
+        if (checkRoom($sdate, $startTime, $dur, $room)) {
+            $ckavail = false;
+            $roomInuse = true;
         }
     }
 
@@ -445,46 +463,57 @@ $(function(){
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
-
-
 <?php
 if (!$ckavail) {
     if (acl_check('patients', 'appt', '', 'write')) {
-        if ($is_holiday) { ?>
-            if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-                opener.top.restoreSession();
-                opener.document.forms[0].submit();
-                dlgclose();
-            } <?php
-        } else {
-            //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
-            if ($isProv) { ?>
-                if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
-                <?php
-            } else { ?>
-                if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
-                <?php
+if ($is_holiday) { ?>
+if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
+    opener.top.restoreSession();
+    opener.document.forms[0].submit();
+    dlgclose();
+} <?php
+} else if ($roomInuse){
+//Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
+if ($isProv) { ?>
+if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
+    <?php
+    } else { ?>
+    if (confirm(<?php echo xlj('Deze kamer is al geboekt, gebruik hem toch?'); ?>)) {
+        <?php } ?>
+        opener.top.restoreSession();
+        opener.document.forms[0].submit();
+        dlgclose();
+    }
+    <?php
+    }else {
+    //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
+    if ($isProv) { ?>
+    if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
+        <?php
+        } else { ?>
+        if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
+            <?php
             } ?>
             opener.top.restoreSession();
             opener.document.forms[0].submit();
             dlgclose();
         }
-            <?php
+        <?php
         }
-    } else {
-        if ($is_holiday) { ?>
-            alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
-            <?php
         } else {
-            if ($isProv) { ?>
-                alert(<?php echo xlj('Provider not available, please choose another.'); ?>);
-                <?php
-            } else { ?>
-                alert(<?php echo xlj('This appointment slot is already used, please choose another.'); ?>);
-                <?php
-            }
-        } //close if is holiday
-    }
+        if ($is_holiday) { ?>
+        alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
+        <?php
+        } else {
+        if ($isProv) { ?>
+        alert(<?php echo xlj('Provider not available, please choose another.'); ?>);
+        <?php
+        } else { ?>
+        alert(<?php echo xlj('This appointment slot is already used, please choose another.'); ?>);
+<?php
+}
+} //close if is holiday
+}
 } ?>
 
 

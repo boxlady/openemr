@@ -679,13 +679,14 @@ foreach ($providers as $provider) {
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
-	        $fname = substr($event['patient_name'], $commapos + 2);
+	          $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
             $comment = $event['hometext'];
             $catname = $event['catname'];
             $title = "Age $patient_age ($patient_dob)";
+            $room = $event['pc_room'];
 
             //Variables for therapy groups
             $groupid = $event['gid'];
@@ -739,6 +740,7 @@ foreach ($providers as $provider) {
                 if ($patientid) {
                     $link_title = $fname . " " . $lname . " \n";
                     $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";
+                    $link_title .= text($room). " \n";
                     $link_title .= "(" . xl('Click to view') . ")";
 
                     $content .= "<a href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
@@ -756,7 +758,10 @@ foreach ($providers as $provider) {
                             $content .= ": <font color='green'>" . text(trim($event['hometext'])) . "</font>";
                             $content .= ")";
                         }
+
                     }
+                    $content .= " [".xla($event['pc_room'])."] ";
+
                     if ($catid == 1) $content .= "</strike>";
                     $content .= "</a>";
                 }

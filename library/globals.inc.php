@@ -1619,7 +1619,28 @@ $GLOBALS_METADATA = array(
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
         ),
-
+        
+        'calendar_tussenvoegsel' => array(
+            xl('Use middle name as surname prefix'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Use field-middle name in place of surname prefix (Tussenvoegsel).')
+        ),
+    
+        'calendar_show_rooms' => array(
+            xl('Display room number'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Display the room number in the calendar.')
+        ),
+    
+        'calendar_check_rooms' => array(
+            xl('Check if room is available'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('For each appt check if the room is available')
+        ),
+        
         'event_color' => array(
             xl('Appointment/Event Color'),
             array(
