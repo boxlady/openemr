@@ -269,7 +269,7 @@ if (isset($_REQUEST['cktime'])) {
                 $isProv = 'TRUE';
             }
         }
-        if (checkRoom($sdate, $startTime, $dur, $room)) {
+        if (checkRoom($sdate, $startTime, $dur, $room) && $room !=''  ) {
             $ckavail = false;
             $roomInuse = true;
         }
@@ -472,7 +472,7 @@ if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?
     opener.document.forms[0].submit();
     dlgclose();
 } <?php
-} else if ($roomInuse){
+} elseif ($roomInuse){
 //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
 if ($isProv) { ?>
 if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
