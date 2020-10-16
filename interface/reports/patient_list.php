@@ -202,6 +202,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         echo csvEscape(xl('City')) . ',';
         echo csvEscape(xl('State')) . ',';
         echo csvEscape(xl('Zip')) . ',';
+        echo csvEscape(xl('Email')) . ',';
         echo csvEscape(xl('Home Phone')) . ',';
         echo csvEscape(xl('Work Phone')) . "\n";
     } else {
@@ -217,6 +218,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     <th> <?php echo xlt('City'); ?> </th>
     <th> <?php echo xlt('State'); ?> </th>
     <th> <?php echo xlt('Zip'); ?> </th>
+    <th> <?php echo xlt('Email'); ?> </th>
     <th> <?php echo xlt('Home Phone'); ?> </th>
     <th> <?php echo xlt('Work Phone'); ?> </th>
  </thead>
@@ -226,7 +228,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $totalpts = 0;
     $sqlArrayBind = array();
     $query = "SELECT " .
-    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
+    "p.fname, p.mname, p.lname, p.street, p.city, p.state, email, " .
     "p.postal_code, p.phone_home, p.phone_biz, p.pid, p.pubpid, " .
     "count(e.date) AS ecount, max(e.date) AS edate, " .
     "i1.date AS idate1, i2.date AS idate2, " .
@@ -297,6 +299,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo csvEscape(xl($row['city'])) . ',';
             echo csvEscape(xl($row['state'])) . ',';
             echo csvEscape($row['postal_code']) . ',';
+            echo csvEscape($row['email']) . ',';
             echo csvEscape($row['phone_home']) . ',';
             echo csvEscape($row['phone_biz']) . "\n";
         } else {
@@ -323,6 +326,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
    <td>
             <?php echo text($row['postal_code']); ?>
    </td>
+           <td>
+               <?php echo text($row['email']); ?>
+           </td>
    <td>
             <?php echo text($row['phone_home']); ?>
    </td>

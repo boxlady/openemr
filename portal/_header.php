@@ -210,10 +210,6 @@ use OpenEMR\Core\Header;
                         <?php } ?>
                     </ul>
                 </li>
-                <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i
-                            class="fa fa-envelope" aria-hidden="true"></i>
-                        <span><?php echo xlt('Secure Messaging'); ?></span>
-                    </a></li>
                 <?php if ($GLOBALS['allow_portal_chat']) { ?>
                     <li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
                                               data-parent="#panelgroup"> <i class="fa fa-envelope"></i>
