@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AuthRestController
  *
@@ -11,11 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\RestControllers;
 
-require_once(dirname(__FILE__) . "/../../library/authentication/common_operations.php");
-
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -38,41 +39,51 @@ class AuthRestController
             return;
         }
 
-        if (empty($authPayload["username"]) || empty($authPayload["password"])) {
-            http_response_code(401);
-            return;
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // authentication for patient portal api
+            if (empty($authPayload["email"])) {
+                $authPayload["email"] = '';
+            }
+            $authAPILogin = new AuthUtils('portal-api');
+            if (!$authAPILogin->confirmPassword($authPayload["username"], $authPayload["password"], $authPayload["email"])) {
+                http_response_code(401);
+                return;
+            }
+            $userId = 0;
+            $userGroup = '';
+            $patientId = $authAPILogin->getPatientId();
+            if (empty($patientId)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
+                die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
+            }
+            $event = 'portalapi';
+            $genericUserId = $patientId;
+            $_SESSION['pid'] = $patientId;
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // authentication for core api or fhir
+            $authAPILogin = new AuthUtils('api');
+            if (!$authAPILogin->confirmPassword($authPayload["username"], $authPayload["password"])) {
+                http_response_code(401);
+                return;
+            }
+            $userId = $authAPILogin->getUserId();
+            $userGroup = $authAPILogin->getUserGroup();
+            $patientId = 0;
+            if (empty($userId) || empty($userGroup)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
+                die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
+            }
+            $event = 'api';
+            $genericUserId = $userId;
+            $_SESSION['authUser'] = $authPayload["username"];
+            $_SESSION['authUserID'] = $userId;
+            $_SESSION['authProvider'] = $userGroup;
         }
 
-        $ip = collectIpAddresses();
-
-        $userCheck = sqlQueryNoLog("select `active` from `users` where BINARY `username` = ?", [$authPayload['username']]);
-        if (empty($userCheck) || $userCheck['active'] != 1) {
-            EventAuditLogger::instance()->newEvent('api', $authPayload['username'], '', 0, "API failure: " . $ip['ip_string'] . ". user not active or not found in users table");
-            http_response_code(401);
-            return;
-        }
-
-        $authGroupCheck = sqlQueryNoLog("select `name` from `groups` where BINARY `user` = ?", [$authPayload['username']]);
-        if (empty($authGroupCheck) || empty($authGroupCheck['name'])) {
-            EventAuditLogger::instance()->newEvent('api', $authPayload['username'], '', 0, "API failure: " . $ip['ip_string'] . ". user not found in a group");
-            http_response_code(401);
-            return;
-        }
-
-        $user = sqlQueryNoLog("SELECT `id` FROM `users_secure` WHERE BINARY `username` = ?", [$authPayload['username']]);
-        if (empty($user) || empty($user['id'])) {
-            EventAuditLogger::instance()->newEvent('api', $authPayload['username'], $authGroupCheck['name'], 0, "API failure: " . $ip['ip_string'] . ". user not found in auth table");
-            http_response_code(401);
-            return;
-        }
-
-        $is_valid = confirm_user_password($authPayload["username"], $authPayload["password"]);
-        if (!$is_valid) {
-            EventAuditLogger::instance()->newEvent('api', $authPayload["username"], $authGroupCheck['name'], 0, "API failure: " . $ip['ip_string'] . ". user password incorrect");
-            http_response_code(401);
-            return;
-        }
-
+        // PASSED
+        //
         // Bearer token creation
         // Goal is to mitigate both brute force and pass the hash attacks
         //  -Brute force is mitigated by encrypting/signing the token that is sent to user
@@ -85,12 +96,17 @@ class AuthRestController
         //   be the Bearer token.
         $isUnique = false;
         $i = 0;
+        $authHashToken = new AuthHash('token');
         while (!$isUnique) {
             $new_token_a = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
             $new_token_b = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            $new_token_b_salt = oemr_password_salt();
-            $new_token_b_hash = oemr_password_hash($new_token_b, $new_token_b_salt);
-            if (empty($new_token_a) || empty($new_token_b) || empty($new_token_b_salt) || empty($new_token_b_hash)) {
+            $new_token_b_hash = $authHashToken->passwordHash($new_token_b);
+            if (empty($new_token_b_hash)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            }
+            if (empty($new_token_a) || empty($new_token_b)) {
                 http_response_code(500);
                 error_log("OpenEMR Error: API was unable to create a random Bearer token and/or hash");
                 return;
@@ -110,12 +126,13 @@ class AuthRestController
 
         // Storing token_a as plain text and token_b as secure hash
         $sql = " INSERT INTO api_token SET";
-        $sql .= "     user_id=?,";
-        $sql .= "     token=?,";
-        $sql .= "     token_auth_salt=?,";
-        $sql .= "     token_auth=?,";
-        $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
-        sqlStatementNoLog($sql, [$user["id"], $new_token_a, $new_token_b_salt, $new_token_b_hash]);
+        $sql .= "     `token_api` = ?,";
+        $sql .= "     `user_id` = ?,";
+        $sql .= "     `patient_id` = ?,";
+        $sql .= "     `token` = ?,";
+        $sql .= "     `token_auth` = ?,";
+        $sql .= "     `expiry` = DATE_ADD(NOW(), INTERVAL 1 HOUR)";
+        sqlStatementNoLog($sql, [$_SESSION['api'], $userId, $patientId, $new_token_a, $new_token_b_hash]);
 
         // Sending the full token back to user in encrypted/signed form
         $cryptoGen = new CryptoGen();
@@ -126,8 +143,9 @@ class AuthRestController
             return;
         }
         $encoded_token = base64_encode(json_encode(['token' => $encrypted_new_full_token, 'site_id' => trim($_SESSION['site_id']), 'api' => trim($_SESSION['api'])]));
-        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");
-        EventAuditLogger::instance()->newEvent('api', $authPayload["username"], $authGroupCheck['name'], 1, "API success for API token request: " . $ip['ip_string']);
+        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600", "user_data" => array("user_id" => $genericUserId));
+        $ip = collectIpAddresses();
+        EventAuditLogger::instance()->newEvent($event, $authPayload["username"], $userGroup, 1, "API success for API token request: " . $ip['ip_string'], !empty($patientId) ? $patientId : null);
         http_response_code(200);
         return $give;
     }
@@ -157,15 +175,56 @@ class AuthRestController
         $ip = collectIpAddresses();
 
         // Query with first part of token
-        $tokenResult = sqlQueryNoLog("SELECT u.username, a.token, a.token_auth_salt, a.token_auth, a.expiry FROM api_token a JOIN users_secure u ON u.id = a.user_id WHERE BINARY token=?", array($token_a));
-        if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth_salt']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
-            return false;
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // For patient portal api
+            $tokenResult = sqlQueryNoLog(
+                "SELECT pd.`uuid`, p.`pid`, p.`portal_username`, p.`portal_login_username`, a.`token`, a.`token_auth`, a.`expiry`
+                FROM `api_token` a
+                JOIN `patient_access_onsite` p ON p.`pid` = a.`patient_id`
+                JOIN `patient_data` pd ON pd.`pid` = a.`patient_id`
+                WHERE BINARY a.`token` = ? AND a.`token_api` = ?",
+                array($token_a, $_SESSION['api'])
+            );
+            if (!$tokenResult || empty($tokenResult['uuid']) || empty($tokenResult['pid']) || empty($tokenResult['portal_username']) || empty($tokenResult['portal_login_username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
+                EventAuditLogger::instance()->newEvent('portalapi', $tokenResult['portal_login_username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found", $tokenResult['pid']);
+                return false;
+            }
+            $event = 'portalapi';
+            $genericUserName = $tokenResult['portal_login_username'];
+            $logPid = $tokenResult['pid'];
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // For core api or fhir api
+            $tokenResult = sqlQueryNoLog(
+                "SELECT u.`username`, a.`user_id`, a.`token`, a.`token_auth`, a.`expiry`
+                FROM `api_token` a
+                JOIN `users_secure` u ON u.`id` = a.`user_id`
+                WHERE BINARY a.`token` = ? AND a.`token_api` = ?",
+                array($token_a, $_SESSION['api'])
+            );
+            if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['user_id']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
+                EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
+                return false;
+            }
+            $event = 'api';
+            $genericUserName = $tokenResult['username'];
+            $logPid = null;
         }
 
         // Authenticate with second part of token
-        if (!hash_equals(oemr_password_hash($token_b, $tokenResult['token_auth_salt']), $tokenResult['token_auth'])) {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not authorized");
+        if (AuthHash::passwordVerify($token_b, $tokenResult['token_auth'])) {
+            $authHashToken = new AuthHash('token');
+            if ($authHashToken->passwordNeedsRehash($tokenResult['token_auth'])) {
+                // If so, create a new hash, and replace the old one (this will ensure always using most modern hashing)
+                $newHash = $authHashToken->passwordHash($token_b);
+                if (empty($newHash)) {
+                    // Something is seriously wrong
+                    error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                    die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+                }
+                sqlStatementNoLog("UPDATE `api_token` SET `token_auth` = ? WHERE BINARY `token` = ?", [$newHash, $token_a]);
+            }
+        } else {
+            EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 0, "API failure: " . $ip['ip_string'] . ". token not authorized", $logPid);
             return false;
         }
 
@@ -173,38 +232,30 @@ class AuthRestController
         $currentDateTime = date("Y-m-d H:i:s");
         $expiryDateTime = date("Y-m-d H:i:s", strtotime($tokenResult['expiry']));
         if ($expiryDateTime <= $currentDateTime) {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token expired");
+            EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 0, "API failure: " . $ip['ip_string'] . ". token expired", $logPid);
             return false;
         }
 
-        EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 1, "API success for API token use: " . $ip['ip_string']);
+        // SUCCESS
+        EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 1, "API success for API token use: " . $ip['ip_string'], $logPid);
+
+        // Maintenance - remove all tokens that have been expired for more than a day
+        $currentDateTimePlusDay = date("Y-m-d H:i:s", strtotime('-1 day'));
+        sqlStatementNoLog("DELETE FROM `api_token` WHERE `expiry` < ?", [$currentDateTimePlusDay]);
+
+        // Set needed session variables
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // For patient portal api
+            $_SESSION['pid'] = $tokenResult['pid'];
+            $_SESSION['puuid'] = $tokenResult['uuid'];
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // For core api or fhir api
+            $_SESSION['authUser'] = $tokenResult['username'];
+            $_SESSION['authUserID'] = $tokenResult['user_id'];
+            $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'];
+        }
+
         return true;
-    }
-
-    public function aclCheck($tokenRaw, $section, $value)
-    {
-        // decrypt/validate the encrypted/signed token
-        $token = $this->decryptValidateToken($tokenRaw);
-        if (empty($token)) {
-            return false;
-        }
-
-        // Only use first part of token since authentication of token not needed here
-        $token = substr($token, 0, 32);
-
-        // Collect username
-        $sql = " SELECT";
-        $sql .= " u.username";
-        $sql .= " FROM api_token a";
-        $sql .= " JOIN users_secure u ON u.id = a.user_id";
-        $sql .= " WHERE BINARY a.token = ?";
-        $userResult = sqlQueryNoLog($sql, array($token));
-        if (empty($userResult["username"])) {
-            return false;
-        }
-
-        // Check if user is authorized
-        return acl_check($section, $value, $userResult["username"]);
     }
 
     public function optionallyAddMoreTokenTime($tokenRaw)

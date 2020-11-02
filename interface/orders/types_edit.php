@@ -1,4 +1,5 @@
 <?php
+
 /**
  * types_edit.php
  *
@@ -11,9 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
@@ -85,11 +84,10 @@ function recursiveDelete($typeid)
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','topdialog','datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
-
-<title><?php echo $typeid ? xlt('Edit') : xlt('Add New'); ?> <?php echo xlt('Order/Result Type'); ?></title>
-
-
+    <?php Header::setupHeader(['opener','topdialog','datetime-picker']);?>
+    <title>
+        <?php echo $typeid ? xlt('Edit') : xlt('Add New{{Type}}'); ?> <?php echo xlt('Order/Result Type'); ?>
+    </title>
 <style>
 .disabled {
     pointer-events: none;
@@ -104,12 +102,6 @@ td {
 .inputtext {
     padding-left: 2px;
     padding-right: 2px;
-}
-
-.button {
-    font-family: sans-serif;
-    font-size: 9pt;
-    font-weight: bold;
 }
 
 .ordonly {
@@ -141,7 +133,7 @@ div[id$="_info"] > a {
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -165,13 +157,13 @@ function set_related(codetype, code, selector, codedesc) {
 // This is for callback by the find-code popup.
 // Returns the array of currently selected codes with each element in codetype:code format.
 function get_related() {
- return document.forms[0][rcvarname].value.split(';');
+    return document.forms[0][rcvarname].value.split(';');
 }
 
 // This is for callback by the find-code popup.
 // Deletes the specified codetype:code from the currently selected list.
 function del_related(s) {
- my_del_related(s, document.forms[0][rcvarname], false);
+    my_del_related(s, document.forms[0][rcvarname], false);
 }
 
 // This invokes the find-code popup.
@@ -181,9 +173,9 @@ function sel_related(varname) {
     }
     rcvarname = varname;
     let url = '../patient_file/encounter/find_code_dynamic.php';
-    if (varname == 'form_diagnosis_code')
+    if (varname == 'form_diagnosis_code') {
         url = '../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("diagnosis", "csv")); ?>;
-
+    }
     dlgopen(url, '_codeslkup', 985, 800, '', <?php echo xlj("Select Default Codes"); ?>);
 }
 
@@ -218,17 +210,27 @@ function proc_type_changed() {
     var f = document.forms[0];
     var pt = f.form_procedure_type;
     var ix = pt.selectedIndex;
-    if (ix < 0) ix = 0;
+    if (ix < 0) {
+        ix = 0;
+    }
     var ptval = pt.options[ix].value;
     var ptpfx = ptval.substring(0, 3);
     $('.ordonly').hide();
     $('.resonly').hide();
     $('.fgponly').hide();
     $('.foronly').hide();
-    if (ptpfx == 'ord') $('.ordonly').show();
-    if (ptpfx == 'for') $('.foronly').show();
-    if (ptpfx == 'res' || ptpfx == 'rec') $('.resonly').show();
-    if (ptpfx == 'fgp') $('.fgponly').show(); // Favorites
+    if (ptpfx == 'ord') {
+        $('.ordonly').show();
+    }
+    if (ptpfx == 'for') {
+        $('.foronly').show();
+    }
+    if (ptpfx == 'res' || ptpfx == 'rec') {
+        $('.resonly').show();
+    }
+    if (ptpfx == 'fgp') {
+        $('.fgponly').show(); // Favorites
+    }
     if (ptpfx == 'grp') {
         $('#form_legend').html(
             "<?php echo xla('Enter Details for Group'); ?>" + "   <i id='grp' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
@@ -250,16 +252,15 @@ function proc_type_changed() {
             "<?php echo xla('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
 }
-    $(function () {
-        proc_type_changed();
-    });
 
+$(function () {
+    proc_type_changed();
+});
 </script>
 
 </head>
-
-    <body class="body_top">
-        <div class= "container">
+    <body>
+        <div class="container mt-3">
             <?php
             // If we are saving, then save and close the window.
             //
@@ -310,7 +311,7 @@ function proc_type_changed() {
                 // Find out if this parent still has any children.
                 $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = ? LIMIT 1", [$parent]);
                 // Close this window and redisplay the updated list.
-                echo "<script language='JavaScript'>\n";
+                echo "<script>\n";
                 if ($info_msg) {
                     echo " alert(" . js_escape($info_msg) . ");\n";
                 }
@@ -511,7 +512,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code (LOINC)'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_standard_code' id='form_standard_code'
@@ -695,7 +696,7 @@ function proc_type_changed() {
                                             <label class="control-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text'  name='form_related_code' id='form_related_code'
+                                            <input type='text' name='form_related_code' id='form_related_code'
                                                 value='<?php echo attr($row['related_code']) ?>'
                                                 onclick='sel_related("form_related_code")'
                                                 title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
@@ -711,13 +712,13 @@ function proc_type_changed() {
                             </div>
                         </fieldset>
                         <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
-                        <div class="form-group clearfix" id="button-container">
+                        <div class="form-group" id="button-container">
                             <div class="col-sm-12 text-left position-override">
-                                <div class="btn-group btn-group-pinch" role="group">
-                                    <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                                    <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
+                                <div class="btn-group" role="group">
+                                    <button type='submit' name='form_save'  class="btn btn-primary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                    <button type="button" class="btn btn-secondary btn-cancel" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                     <?php if ($typeid) { ?>
-                                        <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                        <button type='submit' name='form_delete' class="btn btn-danger btn-cancel btn-delete" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -729,17 +730,15 @@ function proc_type_changed() {
         <script>
             //jqury-ui tooltip
             $(function () {
-                //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-                // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-                $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
+                $('.icon-tooltip i').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                     show: {
                         delay: 700,
                         duration: 0
                     }
                 });
-                $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
+                $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
                 $('#form_procedure_type').click(function(){
-                    $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
+                    $('.enter-details-tooltip').attr({"title": <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
                 });
             });
         </script>

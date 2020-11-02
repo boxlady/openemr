@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Script to find open appointment slots
@@ -14,21 +15,21 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
+*/
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 ?>
 
 <?php
-// check access controls
-if (!acl_check('patients', 'appt', '', array('write', 'wsome'))) {
+ // check access controls
+if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
     die(xlt('Access not allowed'));
 }
 
@@ -39,7 +40,7 @@ $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 $input_catid = $_REQUEST['catid'];
 
 // Record an event into the slots array for a specified day.
-function doOneDay($catid, $udate, $starttime, $duration, $prefcatid, $roominUSE = false)
+function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
     $udate = strtotime($starttime, $udate);
@@ -47,8 +48,8 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid, $roominUSE 
         return;
     }
 
-    $i = (int)($udate / $slotsecs) - $slotbase;
-    $iend = (int)(($duration + $slotsecs - 1) / $slotsecs) + $i;
+    $i = (int) ($udate / $slotsecs) - $slotbase;
+    $iend = (int) (($duration + $slotsecs - 1) / $slotsecs) + $i;
     if ($iend > $slotcount) {
         $iend = $slotcount;
     }
@@ -73,11 +74,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid, $roominUSE 
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
-                $slots[$i] |= 2;
-                break; // ignore any positive duration for OUT
-            } else { // all other events reserve time
-                $slots[$i] |= 4;
+        } elseif ($catid == 3) { // out of office
+            $slots[$i] |= 2;
+            break; // ignore any positive duration for OUT
+        } else { // all other events reserve time
+            $slots[$i] |= 4;
         }
     }
 }
@@ -129,14 +130,14 @@ $edate = date(
 // compute starting time slot number and number of slots.
 $slotstime = strtotime("$sdate 00:00:00");
 $slotetime = strtotime("$edate 00:00:00");
-$slotbase = (int)($slotstime / $slotsecs);
-$slotcount = (int)($slotetime / $slotsecs) - $slotbase;
+$slotbase  = (int) ($slotstime / $slotsecs);
+$slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
 if ($slotcount <= 0 || $slotcount > 100000) {
     die(xlt("Invalid date range"));
 }
 
-$slotsperday = (int)(60 * 60 * 24 / $slotsecs);
+$slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
 // Compute the number of time slots for the given event duration, or if
 // none is given then assume the default category duration.
@@ -147,14 +148,14 @@ if (isset($_REQUEST['evdur'])) {
     // if the global calendar interval is less than or equal to zero, use 10 mins
     if (intval($_REQUEST['evdur']) <= 0) {
         if (intval($GLOBALS['calendar_interval']) <= 0) {
-            $_REQUEST['evdur'] = 10;
+                $_REQUEST['evdur'] = 10;
         } else {
             $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
         }
     }
 
     $evslots = 60 * $_REQUEST['evdur'];
-    $evslots = (int)(($evslots + $slotsecs - 1) / $slotsecs);
+    $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
 }
 
 // If we have a provider, search.
@@ -181,13 +182,13 @@ if ($_REQUEST['providerid']) {
         "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
         "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
-    array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
+        array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
     if ($_REQUEST['facility'] > 0) {
-        $facility = $_REQUEST['facility'];
-        $query .= " AND pc_facility = ?";
-        array_push($sqlBindArray, $facility);
+            $facility = $_REQUEST['facility'];
+            $query .= " AND pc_facility = ?";
+            array_push($sqlBindArray, $facility);
     }
 
     // end facility filtering whimmel 29apr08
@@ -195,14 +196,14 @@ if ($_REQUEST['providerid']) {
     //////
     $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
     foreach ($events2 as $row) {
-        $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-        doOneDay(
-            $row['pc_catid'],
-            $thistime,
-            $row['pc_startTime'],
-            $row['pc_duration'],
-            $row['pc_prefcatid']
-        );
+            $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
+            doOneDay(
+                $row['pc_catid'],
+                $thistime,
+                $row['pc_startTime'],
+                $row['pc_duration'],
+                $row['pc_prefcatid']
+            );
     }
 if ($room != ''){
     // Note there is no need to sort the query results.
@@ -225,11 +226,8 @@ if ($room != ''){
             $row['pc_duration'],
             $row['pc_prefcatid'],
             true
-
-
         );
     }
-
 }
 
     // Mark all slots reserved where the provider is not in-office.
@@ -248,7 +246,7 @@ if ($room != ''){
             $inoffice = false;
         }
 
-        if (!$inoffice) {
+        if (! $inoffice) {
             $slots[$i] |= 4;
             $prov[$i] = $i;
         }
@@ -273,75 +271,71 @@ if (in_array($sdate, $holidays)) {
 <html>
 <head>
 
-    <?php
-    Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
-    <title><?php
-        echo xlt('Find Available Appointments'); ?></title>
+    <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
+    <title><?php echo xlt('Find Available Appointments'); ?></title>
 
-    <?php
+<?php
 
-    // The cktime parameter is a number of minutes into the starting day of a
-    // tentative appointment that is to be checked.  If it is present then we are
-    // being asked to check if this indicated slot is available, and to submit
-    // the opener and go away quietly if it is.  If it's not then we have more
-    // work to do.
+// The cktime parameter is a number of minutes into the starting day of a
+// tentative appointment that is to be checked.  If it is present then we are
+// being asked to check if this indicated slot is available, and to submit
+// the opener and go away quietly if it is.  If it's not then we have more
+// work to do.
 
-    if (isset($_REQUEST['cktime'])) {
-        $cktime = 0 + $_REQUEST['cktime'];
-        $ckindex = (int)($cktime * 60 / $slotsecs);
-        for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-            if ($slots[$j] >= 4) {
-                $ckavail = false;
-                $isProv = false;
-                if (isset($prov[$j])) {
-                    $isProv = 'TRUE';
-                }
+if (isset($_REQUEST['cktime'])) {
+    $cktime = 0 + $_REQUEST['cktime'];
+    $ckindex = (int) ($cktime * 60 / $slotsecs);
+    for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
+        if ($slots[$j] >= 4) {
+            $ckavail = false;
+            $isProv = false;
+            if (isset($prov[$j])) {
+                $isProv = 'TRUE';
             }
+        }
             if (checkRoom($sdate, $startTime, $dur, $room) && $room != '' && $GLOBALS['calendar_check_rooms']) {
                 $ckavail = false;
                 $roomInuse = true;
             }
-        }
+    }
 
-        if ($ckavail) {
+    if ($ckavail) {
             // The chosen appointment time is available.
             echo "<html>"
-                . "<script language='JavaScript'>\n";
+        . "<script>\n";
             echo "function mytimeout() {\n";
             echo " opener.top.restoreSession();\n";
             echo " opener.document.forms[0].submit();\n";
             echo " dlgclose();\n";
             echo "}\n";
-            echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4></br>..." .
-                xlt('Time slot is available, saving event') . "...</h4></body></html>";
+            echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4><br />..." .
+        xlt('Time slot is available, saving event') . "...</h4></body></html>";
             exit();
-        }
-
-        // The appointment slot is not available.  A message will be displayed
-        // after this page is loaded.
     }
-    ?>
 
-    <script language="JavaScript">
+    // The appointment slot is not available.  A message will be displayed
+    // after this page is loaded.
+}
+?>
 
-        function setappt(year, mon, mday, hours, minutes) {
-            if (opener.closed || !opener.setappt)
-                alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
-            else
-                opener.setappt(year, mon, mday, hours, minutes);
-            dlgclose();
-            return false;
+    <script>
+        function setappt(year,mon,mday,hours,minutes) {
+        if (opener.closed || ! opener.setappt) {
+            alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
+        } else {
+            opener.setappt(year,mon,mday,hours,minutes);
         }
-
+        dlgclose();
+        return false;
+        }
     </script>
 
     <style>
         form {
             /* this eliminates the padding normally around a FORM tag */
-            padding: 0px;
-            margin: 0px;
+            padding: 0;
+            margin: 0;
         }
-
         #searchCriteria {
             text-align: center;
             width: 100%;
@@ -350,91 +344,64 @@ if (in_array($sdate, $holidays)) {
             font-weight: bold;
             padding: 3px;
         }
-
         #searchResultsHeader {
             width: 100%;
             border-collapse: collapse;
-            background-color: #fff;
+            background-color: var(--white);
         }
-
-        #searchResultsHeader th {
-            /*font-size: 0.7em;*/
-        }
-
         #searchResults {
             width: 100%;
             overflow: auto;
             border-collapse: collapse;
-            background-color: white;
+            background-color: var(--white);
         }
-
         #searchResults td {
-            font-size: 0.9em;
-            border-bottom: 1px solid gray;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--gray);
             padding: 1px 5px 1px 5px;
         }
-
         .highlight {
             background-color: #ff9;
         }
-
         .blue_highlight {
             background-color: #336699;
-            color: white;
+            color: var(--white);
         }
-
         #am {
-            border-bottom: 1px solid lightgrey;
-            color: #00c;
+            border-bottom: 1px solid var(--gray);
+            color: var(--primary);
         }
-
         #pm {
-            color: #c00;
+            color: var(--danger);
         }
-
         #pm a {
-            color: #c00;
+            color: var(--danger);
         }
     </style>
-
 </head>
 
 <body class="body_top">
-<div class="container-responsive">
+<div class="container-fluid">
     <div id="searchCriteria">
-        <form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php
-        echo attr_url($providerid) ?>&catid=<?php
-        echo attr_url($input_catid) ?>'>
-            <?php
-            echo xlt('Start date:'); ?>
-            <input type='text' class='datepicker input-sm' name='startdate' id='startdate' size='10' value='<?php
-            echo attr(oeFormatShortDate($sdate)); ?>'
-                   title='<?php
-                   echo xla('Starting date for search'); ?> '/>
-            <?php
-            echo xlt('for'); ?>
-            <input type='text' class="input-sm" name='searchdays' size='3' value='<?php
-            echo attr($searchdays) ?>'
-                   title='<?php
-                   echo xla('Number of days to search from the start date'); ?>'/>
-            <?php
-            echo xlt('days'); ?>&nbsp;
-            <input type='submit' value='<?php
-            echo xla('Search'); ?>'>
+        <form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
+            <?php echo xlt('Start date:'); ?>
+        <input type='text' class='datepicker input-sm form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
+            <?php echo xlt('for'); ?>
+        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
+            <?php echo xlt('days'); ?>&nbsp;
+        <button type='submit' class='btn btn-primary btn-search'><?php echo xla('Search'); ?></button>
         </form>
     </div>
-    <?php
-    if (!empty($slots)) : ?>
-        <table class="table">
-            <thead id="searchResultsHeader" class="head">
-            <tr>
-                <th class="srDate"><?php
-                    echo xlt('Day'); ?></th>
-                <th class="srTimes"><?php
-                    echo xlt('Available Times'); ?></th>
-            </tr>
-            </thead>
-            <tbody id="searchResults">
+<?php if (!empty($slots)) : ?>
+<div class="table-responsive">
+    <table class="table">
+        <thead id="searchResultsHeader" class="head">
+        <tr>
+  <th class="srDate"><?php echo xlt('Day'); ?></th>
+  <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
+        </tr>
+        </thead>
+        <tbody id="searchResults">
             <?php
             $lastdate = "";
             $ampmFlag = "am"; // establish an AM-PM line break flag
@@ -463,7 +430,7 @@ if (in_array($sdate, $holidays)) {
                     $lastdate = $thisdate;
                     $dayName = date("l", $utime);
                     echo " <tr class='oneresult'>\n";
-                    echo "  <td class='srDate'>" . xlt($dayName) . "<br>" . text(oeFormatSDFT($utime)) . "</td>\n";
+                    echo "  <td class='srDate'>" . xlt($dayName) . "<br />" . text(oeFormatSDFT($utime)) . "</td>\n";
                     echo "  <td class='srTimes'>";
                     echo "<div id='am'>AM ";
                     $ampmFlag = "am";  // reset the AMPM flag
@@ -478,16 +445,16 @@ if (in_array($sdate, $holidays)) {
 
                 $atitle = "Choose " . date("h:i a", $utime);
                 $adate = getdate($utime);
-                $anchor = "<a href='' onclick='return setappt(" .
-                    attr_js($adate['year']) . "," .
-                    attr_js($adate['mon']) . "," .
-                    attr_js($adate['mday']) . "," .
-                    attr_js($adate['hours']) . "," .
-                    attr_js($adate['minutes']) . ")'" .
-                    " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
-                    ">";
-                echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
-                    $anchor . date("g:i", $utime) . "</a> ";
+                $anchor = "<a href='' class='text-decoration-none' onclick='return setappt(" .
+                attr_js($adate['year']) . "," .
+                attr_js($adate['mon']) . "," .
+                attr_js($adate['mday']) . "," .
+                attr_js($adate['hours']) . "," .
+                attr_js($adate['minutes']) . ")'" .
+                " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
+                ">";
+                echo (strlen(date('g', $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
+                $anchor . date("g:i", $utime) . "</a> ";
 
                 // If the duration is more than 1 slot, increment $i appropriately.
                 // This is to avoid reporting available times on undesirable boundaries.
@@ -498,51 +465,41 @@ if (in_array($sdate, $holidays)) {
                 echo "</td>\n";
                 echo " </tr>\n";
             } else {
-                echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
+                echo " <tr><td colspan='2' class='text-center'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
             }
             ?>
-            </tbody>
-        </table>
-    <?php
-    endif; ?>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>
 
-    <script language='JavaScript'>
+<script>
+// jQuery stuff to make the page a little easier to use
+$(function () {
+    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
+    $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
 
-        // jQuery stuff to make the page a little easier to use
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 
-        $(function () {
-            $(".oneresult").mouseover(function () {
-                $(this).toggleClass("highlight");
-            });
-            $(".oneresult").mouseout(function () {
-                $(this).toggleClass("highlight");
-            });
-            $(".oneresult a").mouseover(function () {
-                $(this).toggleClass("blue_highlight");
-                $(this).children().toggleClass("blue_highlight");
-            });
-            $(".oneresult a").mouseout(function () {
-                $(this).toggleClass("blue_highlight");
-                $(this).children().toggleClass("blue_highlight");
-            });
 
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-            });
-        });
-        <?php
-        if (!$ckavail) {
-        if (acl_check('patients', 'appt', '', 'write')) {
+<?php
+if (!$ckavail) {
+    if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
-        if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
-        } <?php
+            if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
+                opener.top.restoreSession();
+                opener.document.forms[0].submit();
+                dlgclose();
+            } <?php
         } elseif ($roomInuse && $GLOBALS['calendar_check_rooms']){
         //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
         if ($isProv) { ?>
@@ -556,39 +513,38 @@ if (in_array($sdate, $holidays)) {
                 dlgclose();
             }
             <?php
-            }else {
+        } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
             if ($isProv) { ?>
-            if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
+                if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
                 <?php
-                } else { ?>
+            } else { ?>
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
-                    <?php
-                    } ?>
-                    opener.top.restoreSession();
-                    opener.document.forms[0].submit();
-                    dlgclose();
-                }
                 <?php
-                }
-                } else {
-                if ($is_holiday) { ?>
-                alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
-                <?php
-                } else {
-                if ($isProv) { ?>
+            } ?>
+            opener.top.restoreSession();
+            opener.document.forms[0].submit();
+            dlgclose();
+        }
+            <?php
+        }
+    } else {
+        if ($is_holiday) { ?>
+            alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
+            <?php
+        } else {
+            if ($isProv) { ?>
                 alert(<?php echo xlj('Provider not available, please choose another.'); ?>);
                 <?php
-                } else { ?>
+            } else { ?>
                 alert(<?php echo xlj('This appointment slot is already used, please choose another.'); ?>);
-        <?php
-        }
+                <?php
+            }
         } //close if is holiday
-        }
-        } ?>
+    }
+} ?>
 
-
-    </script>
+</script>
 </div>
 </body>
 </html>

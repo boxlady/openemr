@@ -1,34 +1,32 @@
 <?php
-/**
- * interface/patient_file/label.php Displaying a PDF file of Labels for printing.
- *
- * Program for displaying Chart Labels
- * via the popups on the left nav screen
- *
- * Used the program example supplied with the Avery Label Print Class to produce this program
- *
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
 
+/**
+* interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing.
+*
+* Program for displaying Address Labels
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Terry Hill <terry@lillysystems.com>
+* @author    Daniel Pflieger <growlingflea@gmail.com>
+* @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
+* @copyright Copyright (c) 2017 Daniel Pflieger <growlingflea@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
 
 require_once("../globals.php");
 
 //Get the data to place on labels
 //
+
 $patdata = sqlQuery("SELECT " .
-                    "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-                    "p.street, p.city, p.state, p.postal_code, p.pid, p.email, p.phone_cell  " .
-                    "FROM patient_data AS p " .
-                    "WHERE p.pid = ? LIMIT 1", array($pid));
+  "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
+  "p.street, p.city, p.state, p.postal_code, p.pid, p.email, p.phone_cell  " .
+  "FROM patient_data AS p " .
+  "WHERE p.pid = ? LIMIT 1", array($pid));
 
 // re-order the dates
 //
-
 $today = oeFormatShortDate($date = 'today');
 $dob = oeFormatShortDate($patdata['DOB']);
 

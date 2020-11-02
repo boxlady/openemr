@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UserReporter.php
  *
@@ -86,7 +87,7 @@ class UserReporter extends Reporter
     public $NewcropUserRole;
     public $Cpoe;
     public $PhysicianType;
-
+    public $PortalUser;
     /*
     * GetCustomQuery returns a fully formed SQL statement.  The result columns
     * must match with the properties of this reporter object.
@@ -145,15 +146,13 @@ class UserReporter extends Reporter
 			,`users`.`taxonomy` as Taxonomy
 			,`users`.`calendar` as Calendar
 			,`users`.`abook_type` as AbookType
-			,`users`.`pwd_expiration_date` as PwdExpirationDate
-			,`users`.`pwd_history1` as PwdHistory1
-			,`users`.`pwd_history2` as PwdHistory2
 			,`users`.`default_warehouse` as DefaultWarehouse
 			,`users`.`irnpool` as Irnpool
 			,`users`.`state_license_number` as StateLicenseNumber
 			,`users`.`newcrop_user_role` as NewcropUserRole
 			,`users`.`cpoe` as Cpoe
 			,`users`.`physician_type` as PhysicianType
+            ,`users`.`portal_user` as PortalUser
 		from `users`";
 
         // the criteria can be used or you can write your own custom logic.

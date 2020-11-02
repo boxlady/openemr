@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
@@ -7,24 +8,25 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //acl check
-if (!acl_check_form('fee_sheet')) {
+if (!AclMain::aclCheckForm('fee_sheet')) {
     ?>
     <script>alert(<?php echo xlj("Not authorized"); ?>)</script>;
     <?php
@@ -79,7 +81,7 @@ function genDiagJS($code_type, $code)
 {
     global $code_types;
     if ($code_types[$code_type]['diag']) {
-        echo "diags.push(" . js_escape($code_type."|".$code) . ");\n";
+        echo "diags.push(" . js_escape($code_type . "|" . $code) . ");\n";
     }
 }
 
@@ -126,7 +128,7 @@ function echoServiceLines()
 
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code_type]' value='" . attr($codetype) . "' />";
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code]' value='" . attr($code) . "' />";
-        echo "<input type='hidden' name='bill[" . attr($lino)."][billed]' value='" . attr($billed)."' />";
+        echo "<input type='hidden' name='bill[" . attr($lino) . "][billed]' value='" . attr($billed) . "' />";
         if (isset($li['hidden']['method'])) {
             echo "<input type='hidden' name='bill[" . attr($lino) . "][method]'   value='" . attr($li['hidden']['method'  ]) . "' />";
             echo "<input type='hidden' name='bill[" . attr($lino) . "][cyp]'      value='" . attr($li['hidden']['cyp'     ]) . "' />";
@@ -157,57 +159,57 @@ function echoServiceLines()
             if (fees_are_used()) {
                 if ($price_levels_are_used) {
                     // Show price level for this line.
-                    echo "  <td class='billcell' align='center'>";
+                    echo "  <td class='billcell text-center'>";
                     echo $fs->genPriceLevelSelect('', ' ', $li['hidden']['codes_id'], '', $pricelevel, true);
                     echo "</td>\n";
                 }
 
-                echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($li['price'])) . "</td>\n";
+                echo "  <td class='billcell text-center'>" . text(oeFormatMoney($li['price'])) . "</td>\n";
                 if ($codetype != 'COPAY') {
-                    echo "  <td class='billcell' align='center'>" . text($li['units']) . "</td>\n";
+                    echo "  <td class='billcell text-center'>" . text($li['units']) . "</td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
 
-                echo "  <td class='billcell' align='center'$justifystyle>$justify</td>\n";
+                echo "  <td class='billcell text-center' $justifystyle>$justify</td>\n";
             }
 
             // Show provider for this line.
-            echo "  <td class='billcell' align='center' $liprovstyle>";
-            echo $fs->genProviderSelect('', '-- ' .xl("Default"). ' --', $li['provid'], true);
+            echo "  <td class='billcell text-center' $liprovstyle>";
+            echo $fs->genProviderSelect('', '-- ' . xl("Default") . ' --', $li['provid'], true);
             echo "</td>\n";
 
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
-                echo "  <td class='billcell' align='center'$usbillstyle>" .
+                echo "  <td class='billcell text-center' $usbillstyle>" .
                 text($li['notecodes']) . "</td>\n";
             } else {
-                echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+                echo "  <td class='billcell text-center' $usbillstyle></td>\n";
             }
 
-            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
+            echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox'" .
             ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
 
             if ($GLOBALS['gbl_auto_create_rx']) {
-                echo "  <td class='billcell' align='center'>&nbsp;</td>\n";
+                echo "  <td class='billcell text-center'>&nbsp;</td>\n";
             }
 
-            echo "  <td class='billcell' align='center'><input type='checkbox'" .
+            echo "  <td class='billcell text-center'><input type='checkbox'" .
             " disabled /></td>\n";
         } else { // not billed
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
-                    echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
-                        "title='" . xla("Revenue Code for this item. Type to search or double click for list") . "' " .
-                        "value='" . attr($revenue_code) . "' size='4'></td>\n";
+                    echo "  <td class='billcell'><select type='text' class='revcode form-control' name='bill[" . attr($lino) . "][revenue_code]' " .
+                        "title='" . xla("Revenue Code for this item. Type to search") . "' " .
+                        "value='" . attr($revenue_code) . "' size='4'></select></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
             }
             if (modifiers_are_used(true)) {
                 if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
-                    echo "  <td class='billcell'><input type='text' name='bill[" . attr($lino) . "][mod]' " .
+                    echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "'></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -216,35 +218,33 @@ function echoServiceLines()
             if (fees_are_used()) {
                 if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
                     if ($price_levels_are_used) {
-                        echo "  <td class='billcell' align='center'>";
+                        echo "  <td class='billcell text-center'>";
                         echo $fs->genPriceLevelSelect("bill[$lino][pricelevel]", ' ', $li['hidden']['codes_id'], '', $pricelevel);
                         echo "</td>\n";
                     }
 
-                    echo "  <td class='billcell' align='right'>" .
-                    "<input type='text' name='bill[$lino][price]' " .
+                    echo "  <td class='billcell text-right'>" .
+                    "<input type='text' class='form-control' name='bill[$lino][price]' " .
                     "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
-                    if (acl_check('acct', 'disc')) {
-                        echo " style='text-align:right'";
-                    } else {
-                        echo " style='text-align:right;background-color:transparent' readonly";
+                    if (!AclMain::aclCheckCore('acct', 'disc')) {
+                        echo " readonly";
                     }
 
                     echo "></td>\n";
 
-                    echo "  <td class='billcell' align='center'>";
+                    echo "  <td class='billcell text-center'>";
                     if ($codetype != 'COPAY') {
-                        echo "<input type='text' name='bill[" . attr($lino) . "][units]' " .
-                        "value='" . attr($li['units']) . "' size='2' style='text-align:right'>";
+                        echo "<input type='text' class='form-control text-right' name='bill[" . attr($lino) . "][units]' " .
+                        "value='" . attr($li['units']) . "' size='2'>";
                     } else {
-                        echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "'>";
+                        echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "' />";
                     }
 
                     echo "</td>\n";
 
                     if ($code_types[$codetype]['just'] || $li['justify']) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-control' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -263,25 +263,25 @@ function echoServiceLines()
             }
 
             // Provider drop-list for this line.
-            echo "  <td class='billcell' align='center' $liprovstyle>";
-            echo $fs->genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $li['provid']);
+            echo "  <td class='billcell text-center' $liprovstyle>";
+            echo $fs->genProviderSelect("bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']);
             echo "</td>\n";
 
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
-                echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[" . attr($lino) . "][notecodes]' " .
+                echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control' name='bill[" . attr($lino) . "][notecodes]' " .
                 "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
-                echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+                echo "  <td class='billcell text-center' $usbillstyle></td>\n";
             }
 
-            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[".attr($lino) . "][auth]' " .
+            echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox' name='bill[" . attr($lino) . "][auth]' " .
             "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
 
             if ($GLOBALS['gbl_auto_create_rx']) {
-                echo "  <td class='billcell' align='center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
+                echo "  <td class='billcell text-center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
             }
 
-            echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
+            echo "  <td class='billcell text-center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
             "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
         }
 
@@ -292,19 +292,18 @@ function echoServiceLines()
             echo " <tr>\n";
             echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
             echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
-            echo "<input type='text' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
-            "size='11' style='background-color:transparent'>";
+            echo "<input type='text' class='form-control' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
+            "size='11' />";
             echo " &nbsp;Qty:&nbsp;";
-            echo "<input type='text' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
-            "size='3' style='background-color:transparent;text-align:right'>";
+            echo "<input type='text' class='form-control text-right' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            "size='3' />";
             echo " ";
-            echo "<select name='bill[" . attr($lino) . "][ndcuom]' style='background-color:transparent'>";
+            echo "<select class='form-control' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
                     echo " selected";
                 }
-
                 echo ">" . text($value) . "</option>";
             }
 
@@ -339,15 +338,15 @@ function echoProductLines()
         $warehouse_id = $li['warehouse'];
         $rx           = $li['rx'];
 
-        $strike1 = ($sale_id && $del) ? "<strike>" : "";
-        $strike2 = ($sale_id && $del) ? "</strike>" : "";
+        $strike1 = ($sale_id && $del) ? "<s>" : "";
+        $strike2 = ($sale_id && $del) ? "</s>" : "";
 
         echo " <tr>\n";
         echo "  <td class='billcell'>{$strike1}" . xlt("Product") . "$strike2";
-        echo "<input type='hidden' name='prod[" . attr($lino) . "][sale_id]' value='" . attr($sale_id) . "'>";
-        echo "<input type='hidden' name='prod[" . attr($lino) . "][drug_id]' value='" . attr($drug_id) . "'>";
-        echo "<input type='hidden' name='prod[" . attr($lino) . "][selector]' value='" . attr($selector) . "'>";
-        echo "<input type='hidden' name='prod[" . attr($lino) . "][billed]' value='" . attr($billed) . "'>";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][sale_id]' value='" . attr($sale_id) . "' />";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][drug_id]' value='" . attr($drug_id) . "' />";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][selector]' value='" . attr($selector) . "' />";
+        echo "<input type='hidden' name='prod[" . attr($lino) . "][billed]' value='" . attr($billed) . "' />";
         if (isset($li['hidden']['method'])) {
             echo "<input type='hidden' name='prod[" . attr($lino) . "][method]' value='"   . attr($li['hidden']['method'  ]) . "' />";
             echo "<input type='hidden' name='prod[" . attr($lino) . "][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
@@ -371,49 +370,47 @@ function echoProductLines()
                     echo "</td>\n";
                 }
 
-                echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
-                echo "  <td class='billcell' align='center'>" . text($units) . "</td>\n";
+                echo "  <td class='billcell text-right'>" . text(oeFormatMoney($price)) . "</td>\n";
+                echo "  <td class='billcell text-right'>" . text($units) . "</td>\n";
             }
 
             if (justifiers_are_used()) { // KHY Evaluate proper position/usage of if justifiers
-                echo "  <td class='billcell' align='center'$justifystyle>&nbsp;</td>\n"; // justify
+                echo "  <td class='billcell text-center' $justifystyle>&nbsp;</td>\n"; // justify
             }
 
             // Show warehouse for this line.
-            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo "  <td class='billcell text-center' $liprovstyle>";
             echo $fs->genWarehouseSelect('', ' ', $warehouse_id, true, $drug_id, $sale_id > 0);
             echo "</td>\n";
             //
-            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
-            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
+            echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // note codes
+            echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // auth
             if ($GLOBALS['gbl_auto_create_rx']) {
-                echo "  <td class='billcell' align='center'><input type='checkbox'" . // rx
+                echo "  <td class='billcell text-center'><input type='checkbox'" . // rx
                 " disabled /></td>\n";
             }
 
-            echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
+            echo "  <td class='billcell text-center'><input type='checkbox'" .   // del
             " disabled /></td>\n";
         } else { // not billed
             if (fees_are_used()) {
                 if ($price_levels_are_used) {
-                    echo "  <td class='billcell' align='center'>";
+                    echo "  <td class='billcell text-center'>";
                     echo $fs->genPriceLevelSelect("prod[$lino][pricelevel]", ' ', $drug_id, $selector, $pricelevel);
                     echo "</td>\n";
                 }
 
-                echo "  <td class='billcell' align='right'>" .
-                "<input type='text' name='prod[" . attr($lino) . "][price]' " .
+                echo "  <td class='billcell text-right'>" .
+                "<input type='text' class='form-control' name='prod[" . attr($lino) . "][price]' " .
                 "value='" . attr($price) . "' size='6' onchange='setSaveAndClose()'";
-                if (acl_check('acct', 'disc')) {
-                    echo " style='text-align:right'";
-                } else {
-                    echo " style='text-align:right;background-color:transparent' readonly";
+                if (!AclMain::aclCheckCore('acct', 'disc')) {
+                    echo " readonly";
                 }
 
                 echo "></td>\n";
-                echo "  <td class='billcell' align='center'>";
-                echo "<input type='text' name='prod[" . attr($lino) . "][units]' " .
-                "value='" . attr($units) . "' size='2' style='text-align:right'>";
+                echo "  <td class='billcell text-center'>";
+                echo "<input type='text' class='form-control' name='prod[" . attr($lino) . "][units]' " .
+                "value='" . attr($units) . "' size='2'>";
                 echo "</td>\n";
             }
 
@@ -422,19 +419,19 @@ function echoProductLines()
             }
 
             // Generate warehouse selector if there is a choice of warehouses.
-            echo "  <td class='billcell' align='center' $liprovstyle>";
+            echo "  <td class='billcell text-center' $liprovstyle>";
             echo $fs->genWarehouseSelect("prod[$lino][warehouse]", ' ', $warehouse_id, false, $drug_id, $sale_id > 0);
             echo "</td>\n";
             //
-            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
-            echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
+            echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // note codes
+            echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // auth
             if ($GLOBALS['gbl_auto_create_rx']) {
-                echo "  <td class='billcell' align='center'>" .
+                echo "  <td class='billcell text-center'>" .
                 "<input type='checkbox' name='prod[" . attr($lino) . "][rx]' value='1'" .
                 ($rx ? " checked" : "") . " /></td>\n";
             }
 
-            echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[" . attr($lino) . "][del]' " .
+            echo "  <td class='billcell text-center'><input type='checkbox' name='prod[" . attr($lino) . "][del]' " .
             "value='1'" . ($del ? " checked" : "") . " /></td>\n";
         }
 
@@ -570,11 +567,8 @@ if (!$alertmsg && $_POST['bn_reopen']) {
 $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
-<?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
-<style>
-/*.billcell { font-family: sans-serif; font-size: 10pt }*/
-.ui-autocomplete { max-height: 250px; max-width: 350px; overflow-y: auto; overflow-x: hidden; }
-</style>
+<head>
+<?php Header::setupHeader(['knockout', 'select2']);?>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
@@ -614,24 +608,31 @@ if ($_POST['newcodes']) {
 }
 ?>
 function reinitForm(){
-    var cache = {};
-    $( ".revcode" ).autocomplete({
-        minLength: 1,
-        source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "revenue_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
-            })
+    $(".revcode").select2({
+        ajax: {
+            url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  code_group: "revenue_code",
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
         }
-    }).dblclick(function(event) {
-        $(this).autocomplete('search'," ");
-       });
+    })
 }
 
 // This is invoked by <select onchange> for the various dropdowns,
@@ -789,10 +790,10 @@ function pricelevel_changed(sel) {
 <style>
     @media only screen and (max-width: 1024px) {
         div.category-display{
-            width:100% !Important;
+            width: 100% !important;
         }
         div.category-display > button {
-        width:75% !Important;
+        width: 75% !important;
         }
     }
 </style>
@@ -828,64 +829,61 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 
-<body class="body_top">
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+<body>
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
         <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header clearfix">
-                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
-                </div>
+            <div class="col-12">
+                <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
        </div>
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-12">
                 <form method="post" name="fee_sheet_form" id="fee_sheet_form" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
                 echo "rde=" . attr_url($rapid_data_entry) . "&addmore=" . attr_url($add_more_items); ?>"
                 onsubmit="return validate(this)">
-                    <input type='hidden' name='newcodes' value=''>
+                    <input type='hidden' name='newcodes' value='' />
                     <?php
-                        $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);
+                    $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);
                     if ($isBilled) {
-                        echo "<p><font color='green'>" .
-                        xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .
-                        "</font></p>\n";
+                        echo "<p class='text-success'>" .
+                                xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .
+                             "</p>\n";
                     } else { // the encounter is not yet billed
                         ?>
-
-                        <?php
-                        // Allow the patient price level to be fixed here.
-                        echo "<fieldset>";
-                        echo "<legend>".xlt('Set Price Level')."</legend>";
-                        echo "<div class='form-group text-center'>";
-                        $plres = sqlStatement("SELECT option_id, title FROM list_options " .
-                        "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
-                        if (true) {
-                            $pricelevel = $fs->getPriceLevel();
-                            //echo "   <span class='billcell'><b>" . xlt('Default Price Level') . ":</b></span>\n";
-                            echo "   <select name='pricelevel' class='center-block' style='width:250px'";
-                            if ($isBilled) {
-                                echo " disabled";
-                            }
-                            echo ">\n";
-                            while ($plrow = sqlFetchArray($plres)) {
-                                $key = $plrow['option_id'];
-                                $val = $plrow['title'];
-                                echo "    <option value='" . attr($key) . "'";
-                                if ($key == $pricelevel) {
-                                    echo ' selected';
+                        <fieldset>
+                        <legend><?php echo xlt('Set Price Level'); ?></legend>
+                            <div class='form-group mx-5 text-center'>
+                                <?php
+                                // Allow the patient price level to be fixed here.
+                                $plres = sqlStatement("SELECT option_id, title FROM list_options " .
+                                "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
+                                if (true) {
+                                    $pricelevel = $fs->getPriceLevel();
+                                    //echo "   <span class='billcell'><b>" . xlt('Default Price Level') . ":</b></span>\n";
+                                    echo "   <select name='pricelevel' class='form-control' ";
+                                    if ($isBilled) {
+                                        echo " disabled";
+                                    }
+                                    echo ">\n";
+                                    while ($plrow = sqlFetchArray($plres)) {
+                                        $key = $plrow['option_id'];
+                                        $val = $plrow['title'];
+                                        echo "    <option value='" . attr($key) . "'";
+                                        if ($key == $pricelevel) {
+                                            echo ' selected';
+                                        }
+                                        echo ">" . text(xl_list_label($val)) . "</option>\n";
+                                    }
+                                    echo "   </select>\n";
                                 }
-                                echo ">" . text(xl_list_label($val)) . "</option>\n";
-                            }
-                            echo "   </select>\n";
-                        }
-                        echo "</div>";
-                        echo "</fieldset>";
-                        ?>
+                                ?>
+                            </div>
+                        </fieldset>
 
                     <fieldset>
                     <legend><?php echo xlt("Select Code")?></legend>
                     <div class='text-center'>
-                        <table class="table" width=95%>
+                        <table class="table" width="95%">
                             <?php
                                 $i = 0;
                                 $last_category = '';
@@ -905,9 +903,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $cleave_cat = is_numeric(substr($fs_category, 0, 2)) ? 2 : 1;
                                     $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
-                                    echo "  <td width='50%'  nowrap>\n";
-                                    //echo "  <td width='50%' align='center' nowrap>\n";
-                                    echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+                                    echo "  <td class='text-nowrap' width='50%'>\n";
+                                    echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                     echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
                                 }
                                 echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
@@ -921,8 +918,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 global $code_types;
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td width='50%' align='center' nowrap>\n";
-                                echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+                                echo "  <td class='text-center text-nowrap' width='50%'>\n";
+                                echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
@@ -933,7 +930,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         continue;
                                     }
                                     echo "    <option value='" . attr($ctkey) . "|" .
-                                    attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
+                                    attr($row['code']) . ':' . attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
                                 }
                                 echo "   </select>\n";
                                 echo "  </td>\n";
@@ -947,8 +944,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($GLOBALS['sell_non_drug_products']) {
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
-                                echo "  <td width='50%' align='center' nowrap>\n";
-                                echo "   <select name='Products' style='width:96%' onchange='codeselect(this)'>\n";
+                                echo "  <td class='text-center text-nowrap' width='50%'>\n";
+                                echo "   <select name='Products' class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . xlt('Products') . "\n";
                                 $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
                                 "FROM drug_templates AS dt, drugs AS d WHERE " .
@@ -986,18 +983,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <fieldset>
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
-                                <div class="col-lg-8 col-sm-12 text-center">
-                                <div class="form-group">
-                                <?php
-                                    $nofs_code_types = array();
-                                foreach ($code_types as $key => $value) {
-                                    if (!empty($value['nofs'])) {
-                                        continue;
+                                <div class="text-center">
+                                    <div class="form-group">
+                                    <?php
+                                        $nofs_code_types = array();
+                                    foreach ($code_types as $key => $value) {
+                                        if (!empty($value['nofs'])) {
+                                            continue;
+                                        }
+                                        $nofs_code_types[$key] = $value;
                                     }
-                                    $nofs_code_types[$key] = $value;
-                                }
-                                    $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
-                                ?>
+                                        $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
+                                    ?>
 
                                     <?php
                                     foreach ($nofs_code_types as $key => $value) {
@@ -1013,21 +1010,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </div>
                                 </div>
 
-                                <div class="col-lg-4 col-sm-12 clearfix">
-                                    <div class="form-group clearfix">
-                                    <div class="col-xs-8">
-                                    <input type='text' class="form-control" name='search_term' value=''>
-                                    </div>
-                                    <div class="col-xs-1">
-                                    <input type='submit'  name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;'>
-
-                                    </div>
+                                <div class="mx-5 mb-3 text-center">
+                                    <div class="input-group">
+                                        <input type='text' class="form-control" name='search_term' value='' />
+                                        <div class="input-group-append">
+                                            <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-sm-12 text-center">
+                                <div class="mx-5 mb-3 text-center">
                                     <?php
-                                    echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n";
+                                    echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' class='text-center text-nowrap'>\n";
 
                                     // If Search was clicked, do it and write the list of results here.
                                     // There's no limit on the number of results!
@@ -1040,10 +1034,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
                                     if (! $numrows) {
-                                        echo "   <select name='search_results' class='form-control'style='color:red;width:98%' " .
+                                        echo "   <select name='search_results' class='form-control text-danger' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='search_results' style='width:98%; background:yellow' " .
+                                        echo "   <select name='search_results' style='background: var(--yellow)' " .
                                         "onchange='codeselect(this)' >\n";
                                     }
 
@@ -1068,49 +1062,50 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php } // end encounter not billed ?>
                     <fieldset>
                         <legend><?php echo xlt("Selected Fee Sheet Codes and Charges for Current Encounter")?></legend>
-                        <div class='col-xs-12 '>
-
-                            <table  class = "table" name='copay_review' id='copay_review' >
+                        <div class='col-12'>
+                            <table class="table" name='copay_review' id='copay_review'>
                                 <tr>
                                     <?php
-                                    if ($fs->ALLOW_COPAYS) {
-                                        echo "<td class='col-md-6 pull-right'>";
-                                        echo "<input type='button' value='".  xla('Add Copay')."'";
-                                        echo "onclick='copayselect()' />";
-                                        echo "</td>";
-                                    } ?>
+                                    if ($fs->ALLOW_COPAYS) { ?>
+                                        <td class='col-md-6 float-right'>
+                                            <button type="button" class="btn btn-primary btn-add" value='<?php echo xla('Add Copay'); ?>'
+                                                onclick='copayselect()'>
+                                                <?php echo xlt('Add Copay'); ?>
+                                            </button>
+                                        </td>
+                                    <?php } ?>
                                 </tr>
                             </table>
                         </div>
-                        <div class='col-xs-12 text-center table-responsive'>
-                            <table name='selected_codes' id='selected_codes' class="table" cellspacing='5'>
+                        <div class='col-12 text-center table-responsive'>
+                            <table name='selected_codes' id='selected_codes' class="table">
                                 <tr>
-                                    <td class='billcell'><b><?php echo xlt('Type');?></b></td>
-                                    <td class='billcell'><b><?php echo xlt('Code');?></b></td>
-                                    <td class='billcell'><b><?php echo xlt('Description');?></b></td>
+                                    <td class='billcell font-weight-bold'><?php echo xlt('Type');?></td>
+                                    <td class='billcell font-weight-bold'><?php echo xlt('Code');?></td>
+                                    <td class='billcell font-weight-bold'><?php echo xlt('Description');?></td>
                                     <?php if ($institutional) { ?>
-                                        <td class='billcell'><b><?php echo xlt('Revenue');?></b></td>
+                                        <td class='billcell font-weight-bold'><?php echo xlt('Revenue');?></td>
                                     <?php } ?>
                                     <?php if (modifiers_are_used(true)) { ?>
-                                        <td class='billcell'><b><?php echo xlt('Modifiers');?></b></td>
+                                        <td class='billcell font-weight-bold'><?php echo xlt('Modifiers');?></td>
                                     <?php } ?>
                                     <?php if (fees_are_used()) { ?>
                                         <?php if ($price_levels_are_used) { ?>
-                                            <td class='billcell' align='center'><b><?php echo xlt('Price Level');?></b>&nbsp;</td>
+                                            <td class='billcell text-center font-weight-bold'><?php echo xlt('Price Level');?>&nbsp;</td>
                                         <?php } ?>
-                                        <td class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</td>
-                                        <td class='billcell' align='center'><b><?php echo xlt('Units');?></b></td>
+                                        <td class='billcell text-right font-weight-bold'><?php echo xlt('Price');?>&nbsp;</td>
+                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Units');?></td>
                                     <?php } ?>
                                     <?php if (justifiers_are_used()) { ?>
-                                        <td class='billcell' align='center'<?php echo $justifystyle; ?>><b><?php echo xlt('Justify');?></b></td>
+                                        <td class='billcell text-center font-weight-bold'<?php echo $justifystyle; ?>><?php echo xlt('Justify');?></td>
                                     <?php } ?>
-                                    <td class='billcell' align='center' <?php echo $liprovstyle; ?>><b><?php echo xlt('Provider/Warehouse');?></b></td>
-                                    <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
-                                    <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
+                                    <td class='billcell text-center font-weight-bold' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></td>
+                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></td>
+                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></td>
                                     <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
-                                        <td class='billcell' align='center'><b><?php echo xlt('Rx'); ?></b></td>
+                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Rx'); ?></td>
                                     <?php } ?>
-                                    <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
+                                    <td class='billcell text-center font-weight-bold'><?php echo xlt('Delete');?></td>
                                 </tr>
 
                                 <?php
@@ -1192,13 +1187,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                     $resMoneyGot = sqlStatement(
-                                        "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
-                                        "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+                                        "SELECT pay_amount as PatientPay,session_id as id, date(post_time) as date " .
+                                        "FROM ar_activity where deleted IS NULL AND pid = ? and encounter = ? and " .
+                                        "payer_type = 0 and account_code = 'PCP'",
                                         array($fs->pid, $fs->encounter)
                                     ); //new fees screen copay gives account_code='PCP'
                                     while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
-                                        $PatientPay=$rowMoneyGot['PatientPay']*-1;
-                                        $id=$rowMoneyGot['id'];
+                                        $PatientPay = $rowMoneyGot['PatientPay'] * -1;
+                                        $id = $rowMoneyGot['id'];
                                         $fs->addServiceLineItem(array(
                                         'codetype'    => 'COPAY',
                                         'code'        => '',
@@ -1394,12 +1390,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             $ndc_info = $tmp['ndc_info'];
                                                         }
                                                     }
-                                                                                            $fs->addServiceLineItem(array(
-                                                                                            'codetype'    => $newtype,
-                                                                                            'code'        => $code,
-                                                                                            'modifier'    => trim($modifier),
-                                                                                            'ndc_info'    => $ndc_info,
-                                                                                            ));
+                                                    $fs->addServiceLineItem(array(
+                                                         'codetype' => $newtype,
+                                                         'code' => $code,
+                                                         'modifier' => trim($modifier),
+                                                         'ndc_info' => $ndc_info,
+                                                    ));
                                                 }
                                             }
                                         }
@@ -1418,25 +1414,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt("Select Providers"); ?></legend>
-                        <div class='col-xs-12'>
-                            <div class="form-group col-lg-6 col-sm-12">
-                                <label class="control-label col-lg-4 col-sm-3 text-left"><?php echo  xlt('Rendering'); ?></label>
-                                <?php
-                                if ($GLOBALS['default_rendering_provider'] == '0') {
-                                    $default_rid = '';
-                                } elseif ($GLOBALS['default_rendering_provider'] == '1') {
-                                    $default_rid = $fs->provider_id;
-                                } else {
-                                    $default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
-                                }
-                                    echo $fs->genProviderSelect('ProviderID', '-- ' . xl("Please Select") . ' --', $default_rid, $isBilled);
-                                ?>
+                        <div class="row mx-5">
+                            <div class="form-row col">
+                                <label class="col-form-label col-2"><?php echo  xlt('Rendering'); ?></label>
+                                <div class="col-10">
+                                    <?php
+                                    if ($GLOBALS['default_rendering_provider'] == '0') {
+                                        $default_rid = '';
+                                    } elseif ($GLOBALS['default_rendering_provider'] == '1') {
+                                        $default_rid = $fs->provider_id;
+                                    } else {
+                                        $default_rid = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : $fs->provider_id;
+                                    }
+                                        echo $fs->genProviderSelect('ProviderID', '-- ' . xl("Please Select") . ' --', $default_rid, $isBilled);
+                                    ?>
+                                </div>
                             </div>
-                            <div class="form-group col-lg-6 col-sm-12">
+                            <div class="form-row col">
                                 <?php
                                 if (!$GLOBALS['ippf_specific']) { ?>
-                                    <label class='control-label col-lg-4 col-sm-3 text-left'> <?php echo xlt('Supervising'); ?> </label>
-                                    <?php echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled);
+                                    <label class='col-form-label col-2'><?php echo xlt('Supervising'); ?></label>
+                                    <div class="col-10">
+                                    <?php
+                                    $super_id = sqlQuery("Select supervisor_id From users Where id = ?", array($default_rid))['supervisor_id'];
+                                    $select_id = !empty($fs->supervisor_id) ? $fs->supervisor_id : $super_id;
+                                    echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $select_id, $isBilled); ?>
+                                    </div>
+                                    <?php
                                 }
                                 ?>
                             </div>
@@ -1452,41 +1456,46 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
 
-                    <!--&nbsp; &nbsp; &nbsp;-->
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='button' class='btn btn-default btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
+                            <div class="btn-group" role="group">
+                                <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'>
+                                    <?php echo xlt('New Appointment');?>
+                                </button>
                                 <?php if (!$isBilled) { // visit is not yet billed ?>
-                                    <button type='submit' name='bn_refresh' class='btn btn-default btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
-                                    <button type='submit' name='bn_save' class='btn btn-default btn-save' value='<?php echo xla('Save');?>'
+                                    <button type='submit' name='bn_refresh' class='btn btn-primary btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'>
+                                        <?php echo xlt('Refresh');?>
+                                    </button>
+                                    <button type='submit' name='bn_save' class='btn btn-primary btn-save' value='<?php echo xla('Save');?>'
                                     <?php
                                     if ($rapid_data_entry) {
-                                        echo " style='background-color:#cc0000';color:#ffffff'";
+                                        echo " style='background-color: #cc0000'; color: var(--white)'";
                                     } ?>><?php echo xla('Save');?></button>
-                                    <button type='submit' name='bn_save_stay' class='btn btn-default btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
+                                    <button type='submit' name='bn_save_stay' class='btn btn-primary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
                                     <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
                                         <?php if ($fs->hasCharges) { // unbilled with charges ?>
-                                                <button type='submit' name='bn_save_close' class='btn btn-default btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
+                                                <button type='submit' name='bn_save_close' class='btn btn-primary btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
                                         <?php } else { // unbilled with no charges ?>
-                                                <button type='submit' name='bn_save_close' class='btn btn-default btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
+                                                <button type='submit' name='bn_save_close' class='btn btn-primary btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
                                         <?php } // end no charges ?>
                                     <?php } // end ippf-only ?>
                                 <?php } else { // visit is billed ?>
                                     <?php if ($fs->hasCharges) { // billed with charges ?>
-                                        <button type='button' class='btn btn-default btn-show'
-                                            onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
-                                            echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
-                                        <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
+                                        <button type='button' class='btn btn-secondary btn-show' onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'>
+                                            <?php echo xlt('Show Receipt'); ?>
+                                        </button>
+                                        <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
                                             <?php echo xlt('Void Checkout and Re-Open'); ?></button>
                                     <?php } else { ?>
-                                        <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
-                                            <?php echo xlt('Re-Open Visit'); ?></button>
+                                        <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
+                                            <?php echo xlt('Re-Open Visit'); ?>
+                                        </button>
                                     <?php } // end billed without charges ?>
-                                    <button type='submit' class='btn btn-default btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
-                                        <?php echo xlt('Add More Items'); ?></button>
+                                    <button type='submit' class='btn btn-secondary btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
+                                        <?php echo xlt('Add More Items'); ?>
+                                    </button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-link btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
@@ -1495,18 +1504,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                     </div>
                 </form>
-                <br>
-                <br>
+                <br />
+                <br />
             </div>
         </div>
     </div><!--End of div container -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
-    $(function() {
+    $(function () {
         $('select').addClass("form-control");
     });
     </script>
-    <script type="text/javascript">
+    <script>
         setSaveAndClose();
         <?php
         echo $justinit;
@@ -1515,8 +1524,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
         ?>
     </script>
-</body>
-</html>
 <?php if (!empty($_POST['running_as_ajax'])) {
     exit();
 } ?>
@@ -1539,3 +1546,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         document.querySelector("[name='search_term']") . scrollIntoView();
     <?php } ?>
 </script>
+</body>
+</html>

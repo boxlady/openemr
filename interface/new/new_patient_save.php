@@ -1,4 +1,5 @@
 <?php
+
 /**
  * new_patient_save.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2020 Julie Buurman <Boxady@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -149,7 +149,7 @@ if(!$GLOBALS['insurance_only_one']) {
 ?>
 <html>
 <body>
-<script language="Javascript">
+<script>
 <?php
 if ($alertmsg) {
     echo "alert(" . js_escape($alertmsg) . ");\n";
