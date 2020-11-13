@@ -342,7 +342,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 <?php
         exit;
     }
-} else {if (isset($_GET['template']) && $_GET['template'] != "") {
+} elseif (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
         $bodytext = $logo;
@@ -366,7 +366,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-} else {if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+} elseif ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'r');
 
@@ -388,7 +388,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} else {if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+} elseif ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
@@ -431,7 +431,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
     }
-} else {if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+} elseif ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['form_template']), 'w');
     // translate from definition to the constant
@@ -471,10 +471,6 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{" . $key . "}", "{" . $value . "}", $bodytext);
-    }
-}}}}}
-            }
-        }
     }
 }
 

@@ -3094,14 +3094,13 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Enables the ability to download documents in the Patient Portal by the user.')
         ),
-    ),
         'portal_onsite_document_upload' => array(
             xl('Enable Onsite Patient Portal Document Upload'),
             'bool',                           // data type
             '1',
             xl('Enables the ability to Upload documents in the Onsite Patient Portal by the user.')
         ),
-
+    ),
     // Connectors Tab
     //
     'Connectors' => array(

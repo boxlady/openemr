@@ -475,6 +475,9 @@ if (isset($_FILES['fileToUpload'])) {
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-id-card"></i> <?php echo xlt('Profile'); ?></a></li>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-list"></i> <?php echo xlt('Lists'); ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><i class="fas fa-file-medical"></i> <?php echo xlt('Patient Documents'); ?></a></li>
+                    <?php if ($GLOBALS['portal_onsite_document_upload']) { ?>
+                        <li data-toggle="pill"><a href="#uploadcard" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-upload"></i><span><?php echo xlt('Upload Documenten'); ?></span></a></li>
+                    <?php } ?>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-calendar-check"></i> <?php echo xlt("Appointment"); ?></a></li>
                     <?php } ?>

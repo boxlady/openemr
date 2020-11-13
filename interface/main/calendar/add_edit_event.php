@@ -1312,8 +1312,7 @@ function find_available(extra) {
     var c = document.forms[0].form_category;
     var formDate = document.forms[0].form_date;
     var ampm = 0;
-    if (document.forms[0].form_ampm.value == '2' && document.forms[0].form_hour.value != 12)  ampm = 12;
-    var startTime = (+document.forms[0].form_hour.value + +ampm) + ':' + document.forms[0].form_minute.value;
+    var startTime = (+document.forms[0].form_hour.value) + ':' + document.forms[0].form_minute.value;
     let title = <?php echo xlj('Available Appointments Calendar'); ?>;
     dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
         '?providerid=' + s +
