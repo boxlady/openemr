@@ -657,7 +657,7 @@ if (isset($_FILES['fileToUpload'])) {
                                     <span class="text"><?php echo xlt('Uploaden PDF documenten');?></span>
                                     <form enctype="multipart/form-data" name='upload_submit' id='upload_submit' method='post'>
                                         <input type="file" name="fileToUpload" id="fileToUpload" />
-                                        <input type="button" class="generateDoc_download" value="<?php echo xla('Upload'); ?>" />
+                                        <input type="button" class="upload_docs" value="<?php echo xla('Upload'); ?>" />
                                     </form>
                                 </div>
                             </div><!-- /.card-body -->
