@@ -98,6 +98,7 @@ class ORDataObject
 
         }
     }
+
     protected function populate_array($results)
     {
         if (is_array($results)) {

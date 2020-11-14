@@ -298,10 +298,15 @@ if ($GLOBALS['login_page_layout'] == 'left') {
             <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
             <?php if ($extraLogo) { ?>
             <div class="text-center">
-              <span class="d-inline-block w-40"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?></span>
-              <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
-              <span class="d-inline-block w-40"><?php echo $logocode; ?></span>
+                <span class="d-inline-block w-40"><?php echo $logocode; ?></span>
             </div>
+              <div class="text-center">
+                <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
+              </div>
+              <div class="text-center">
+                  <span class="d-inline-block w-40"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?></span>
+              </div>
+
             <?php } else { ?>
               <div class="mx-auto m-4 w-75">
                   <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
