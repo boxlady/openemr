@@ -471,7 +471,6 @@ if (isset($_FILES['fileToUpload'])) {
                 </div>
                 <ul class="nav nav-pills flex-column text-dark">
                     <!-- css class was sidebar-menu -->
-                    //TODO add upload?
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-id-card"></i> <?php echo xlt('Profile'); ?></a></li>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"><i class="fas fa-list"></i> <?php echo xlt('Lists'); ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><i class="fas fa-file-medical"></i> <?php echo xlt('Patient Documents'); ?></a></li>
