@@ -506,6 +506,7 @@ if (isset($_FILES['fileToUpload'])) {
                             <?php } ?>
                         </div>
                     </li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fas fa-envelope"></i> <?php echo xlt('Secure Messaging'); ?></a></li>
                     <?php if ($GLOBALS['allow_portal_chat']) { ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagescard" data-toggle="collapse"
                                 data-parent="#cardgroup"><i class="fas fa-comment-medical"></i> <?php echo xlt("Secure Chat"); ?></a></li>
@@ -656,6 +657,7 @@ if (isset($_FILES['fileToUpload'])) {
                                 <div>
                                     <span class="text"><?php echo xlt('Uploaden PDF documenten');?></span>
                                     <form enctype="multipart/form-data" name='upload_submit' id='upload_submit' method='post'>
+                                        <div>alleen pdf’s</div>
                                         <input type="file" name="fileToUpload" id="fileToUpload" />
                                         <input type="button" class="upload_docs" value="<?php echo xla('Upload'); ?>" />
                                     </form>
