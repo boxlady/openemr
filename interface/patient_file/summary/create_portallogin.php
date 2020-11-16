@@ -65,9 +65,9 @@ function messageCreate($uname, $luname, $pass)
             (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Contact Provider."));
         $sub .= "<br /><br />";
     }
-    $message .= xlt("Portal Account Name") . ": " . text($uname) . "<br /><br /><strong>" .
-        xlt("Login User Name") . ":</strong> " . text($luname) . "<br /><strong>" .
-        xlt("Password") . ":</strong> " .
+    $message .= xlt("Portal-accountnaam") . ": " . text($uname) . "<br /><br /><strong>" .
+        xlt("Login gebruikersnaam") . ":</strong> " . text($luname) . "<br /><strong>" .
+        xlt("Wachtwoord") . ":</strong> " .
         text($pass) . "<br /><br />" . $sub;
     return $message;
 }
@@ -86,15 +86,15 @@ function emailLogin($patient_id, $message)
     if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
         return false;
     }
-    $message .= "<strong>" . xlt("You may be required to change your password during first login.") . "</strong><br />";
-    $message .= xlt("This is required for your security as well as ours.") . "<br />";
-    $message .= xlt("Afterwards however, you may change your portal credentials anytime from portal menu.") . ":<br /><br />";
-    $message .= xlt("Thank you for allowing us to serve you.") . ":<br />";
+    $message .= "<strong>" . xlt("Mogelijk moet u uw wachtwoord wijzigen tijdens de eerste keer inloggen.") . "</strong><br />";
+    $message .= xlt("Dit is zowel voor uw veiligheid als voor die van ons vereist.") . "<br />";
+    $message .= xlt("Daarna kunt u uw portalreferenties op elk moment wijzigen vanuit het portaalmenu.") . ":<br /><br />";
+    $message .= xlt("Bedankt dat we u van dienst mogen zijn.") . ":<br />";
 
     $mail = new MyMailer();
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
-    $email_subject = xl('Access Your Patient Portal');
+    $email_subject = xl('Toegang tot uw patiëntenportaal');
     $email_sender = $GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
@@ -118,7 +118,7 @@ function displayLogin($patient_id, $message, $emailFlag)
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
         $message = "<br /><br />" .
-            xlt("Email was sent to following address") . ": " .
+            xlt("E-mail is naar het volgende adres gestuurd") . ": " .
             text($patientData['email']) . "<br /><br />" .
             $message;
     }
@@ -211,7 +211,7 @@ function transmit(){
                 <input type="text" class="form-control" name="uname" id="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'] . $row['id']); ?>" size="10" readonly />
             </div>
             <div class="form-group">
-                <label class="font-weight-bold" for="login_uname"><?php echo text(xl('Login User Name') . ':');?></label>
+                <label class="font-weight-bold" for="login_uname"><?php echo text(xl('Login gebruikersnaam') . ':');?></label>
                 <input type="text" class="form-control" name="login_uname" id="login_uname" value="<?php echo (!empty($trustedUserName) ? text($trustedUserName) : attr($row['portal_username'])); ?>" readonly />
             </div>
             <label class="font-weight-bold" for="pwd"><?php echo text(xl('Password') . ':');?></label>
