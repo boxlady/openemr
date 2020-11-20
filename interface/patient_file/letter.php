@@ -324,7 +324,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 <body>
 <div class='paddingdiv'>
     <?php echo "<div style='display:flex;'> <div style='justify-content:flex-start;'> <img src='$web_root/$ma_logo_path' width='250px'/> </div>"; ?>
-    <?php echo "<div style='padding-right:450px; padding-bottom: 5px'> </div>"?>
+    <?php echo "<div style='padding-right:400px; padding-bottom: 5px'> </div>"?>
     <?php echo "<div style='justify-content:flex-end';> $facilty_info </div></div>"?>
 
     <?php echo "<div> "; ?>
