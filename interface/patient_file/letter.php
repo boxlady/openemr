@@ -323,7 +323,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 </head>
 <body>
 <div class='paddingdiv'>
-    <?php echo "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' /> <br/>"; ?>
+    <?php echo "<img src='$web_root/$ma_logo_path' width='150' style='align:" . 'center' . "' /> <br/>"; ?>
     <?php echo $cpstring; ?>
     <div class="navigate">
         <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
