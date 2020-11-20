@@ -23,6 +23,7 @@ use OpenEMR\Core\Header;
 $cryptoGen = new CryptoGen();
 
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -88,7 +89,6 @@ $FIELD_TAG = array(
     'HUISARTS_POSTCODE' => xl('HUISARTS_POSTCODE'),
     'HUISARTS_STAD' => xl('HUISARTS_STAD'),
 
-
 );
 
 $patdata = sqlQuery(
@@ -117,6 +117,7 @@ $listdata = sqlStatement(
     "SELECT * FROM lists WHERE pid =? and type =? ",
     array($pid, 'medication')
 );
+
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -167,6 +168,7 @@ $datestr = $form_date;
 $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
 $to_title = $trow['title'] ? $trow['title'] . ' ' : '';
 
+//$cpstring = "<img src='$webserver_root/$ma_logo_path' style='align:" . 'left' . "' />";
 $cpstring = $_POST['form_body'];
 
 // attempt to save to the autosaved template
@@ -241,17 +243,7 @@ $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_POSTCODE'] . '}', $patdata['h
 $cpstring = str_replace('{' . $FIELD_TAG['HUISARTS_STAD'] . '}', $patdata['huisarts_city'], $cpstring);
 
 
-$logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/logo.png";
-if (is_file("$webserver_root/$ma_logo_path") && $form_format == "html") {
-    // Would use max-height here but html2pdf does not support it.
-    // TODO - now use mPDF, so should test if still need this fix
-    $logo = "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' />";
-} elseif (is_file("$webserver_root/$ma_logo_path") && $form_format == "pdf") {
-    $logo = "$webserver_root/$ma_logo_path";
-} else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
-}
+
 $fres = sqlQuery(
     "SELECT * FROM facility " .
     "WHERE primary_business_entity = 1"
@@ -281,6 +273,7 @@ if ($form_format == "pdf") {
 } else { // $form_format = html
 $facilty_info = str_replace("\n", "<br>", $facilty_info);
 $facilty_info = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $facilty_info);
+
 $cpstring = text($cpstring); //escape to prevent stored cross script attack
 $cpstring = str_replace("\n", "<br />", $cpstring);
 $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
@@ -330,6 +323,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 </head>
 <body>
 <div class='paddingdiv'>
+    <?php echo "<img src='$web_root/$ma_logo_path' style='align:" . 'left' . "' /> <br/>"; ?>
     <?php echo $cpstring; ?>
     <div class="navigate">
         <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
@@ -345,7 +339,7 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 } elseif (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
-        $bodytext = $logo;
+    $bodytext = $logo;
     $fh = fopen("$template_dir/" . convert_very_strict_label($_GET['template']), 'r');
 
     if (!$fh) {
