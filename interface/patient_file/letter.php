@@ -323,8 +323,13 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
 </head>
 <body>
 <div class='paddingdiv'>
-    <?php echo "<img src='$web_root/$ma_logo_path' width='150' style='align:" . 'center' . "' /> <br/>"; ?>
-    <?php echo $cpstring; ?>
+    <?php echo "<div style='display:flex;'> <div style='justify-content:flex-start;'> <img src='$web_root/$ma_logo_path' width='250px'/> </div>"; ?>
+    <?php echo "<div style='padding-right:450px; padding-bottom: 5px'> </div>"?>
+    <?php echo "<div style='justify-content:flex-end';> $facilty_info </div></div>"?>
+
+    <?php echo "<div> "; ?>
+    <?php echo $cpstring . " </div>"; ?>
+
     <div class="navigate">
         <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
@@ -387,7 +392,6 @@ $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     $fh = fopen("$template_dir/" . convert_very_strict_label($_POST['newtemplatename']), 'w');
     // translate from definition to the constant
     $temp_bodytext = $_POST['form_body'];
-    $logo;
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
