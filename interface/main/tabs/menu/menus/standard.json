@@ -853,6 +853,19 @@
             ]
           },
           {
+            "label": "Email Settings",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/main/email/email_settings.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "practice"
+            ],
+            "global_req": "email_apt_info"
+          },
+          {
             "label": "Rules",
             "menu_id": "adm0",
             "target": "adm",

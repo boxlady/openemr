@@ -2390,6 +2390,13 @@ $GLOBALS_METADATA = array(
     //
     'Notifications' => array(
 
+        'email_apt_info' => array(
+            xl('Send email confirmation on new apts '),
+            'bool',                           // data type
+            '1',                               // default
+            xl('Send email confirmation on new apts')
+        ),
+
         'patient_reminder_sender_name' => array(
             xl('Patient Reminder Sender Name'),
             'text',                           // data type
