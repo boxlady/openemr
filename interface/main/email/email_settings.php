@@ -42,7 +42,9 @@ if (!empty($_POST['bn_upload'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
+    if ($_FILES['name'] == array()) {
+        $email_controller->clear_attachment($_POST['category_selected']);
+    }
     //Upload and save the file attachment
     $saved = $email_controller->upload_file($_FILES);
     $csv_file_data = '';
@@ -50,9 +52,7 @@ if (!empty($_POST['bn_upload'])) {
         $csv_file_data = $email_controller->get_file_csv_data();
         $email_controller->save_attachment($_POST['category_selected'], $_FILES);
     }
-    if ($_FILES['name'] == "") {
-        $email_controller->clear_attachment($_POST['category_selected']);
-    }
+
 }
 
 ?>
