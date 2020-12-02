@@ -139,7 +139,7 @@ if (isset($_FILES['fileToUpload'])) {
 
     <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
         <script src="https://js.stripe.com/v3/"></script>
-    <?php } ?>
+        <?php } ?>
     <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
         // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
@@ -147,21 +147,21 @@ if (isset($_FILES['fileToUpload'])) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src="<?php echo $script; ?>"></script>
-    <?php } ?>
+        <?php } ?>
 
     <script>
         $(function () {
             if ($('body').css('direction') == "rtl") {
                 $('.float-left').each(function () {
-                    $(this).addClass('float-right').removeClass('float-left');
-                });
+               $(this).addClass('float-right').removeClass('float-left');
+             });
                 $('.dropdown-menu-right').each(function () {
-                    $(this).removeClass('dropdown-menu-right');
-                });
+               $(this).removeClass('dropdown-menu-right');
+             });
                 $('.dropdown-menu-md-right').each(function () {
-                    $(this).removeClass('dropdown-menu-md-right');
-                });
-            }
+               $(this).removeClass('dropdown-menu-md-right');
+             });
+           }
             $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table");
                 $(".demographics td").removeClass("label");
@@ -250,9 +250,9 @@ if (isset($_FILES['fileToUpload'])) {
             });
             $('#popwait').hide();
             $('#callccda').click(function () {
-                $('#popwait').show();
+              $('#popwait').show();
             });
-        });
+          });
 
         function editAppointment(mode, deid) {
             let mdata = {};
@@ -298,7 +298,7 @@ if (isset($_FILES['fileToUpload'])) {
         }
 
         <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-        ?>
+            ?>
         function writeResult(score, stdErr, assessmentOID) {
             $.ajax({
                 url: '../library/ajax/easipro_util.php',
@@ -400,7 +400,7 @@ if (isset($_FILES['fileToUpload'])) {
                 }
             })
         }
-        <?php
+            <?php
         } // end if $GLOBALS['easipro_enable']?>
     </script>
 </head>

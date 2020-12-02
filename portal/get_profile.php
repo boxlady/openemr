@@ -111,22 +111,6 @@ $N = 7;
 ?>
             </div>
         </div>
-        <?php if (!$GLOBALS['insurance_only_one']) ?>
-        <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance');?></header>
-            <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-?></div>
-        </div>
-        <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance');?></header>
-            <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
-?></div>
-        </div>
-            <?php endif ?>
     </div>
     <div>
         <?php
