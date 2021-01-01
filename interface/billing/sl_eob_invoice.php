@@ -96,7 +96,23 @@ function bucks($amount)
             }
             return false;
         }
-
+        function totalpayment(code) {
+            const f = document.forms[0];
+            const type = f['form_insurance'].value;
+            const belement = f['form_line[' + code + '][bal]'];
+            const pelement = f['form_line[' + code + '][pay]'];
+            const aelement = f['form_line[' + code + '][adj]'];
+            const relement = f['form_line[' + code + '][reason]'];
+            const tmp = belement.value - aelement.value;
+            pelement.value = Number(tmp).toFixed(2);
+            if (aelement.value && !relement.value ||type =='Ins1' ) {
+                relement.selectedIndex = 7;
+            }
+            if (aelement.value && !relement.value ||type =='Pt' ) {
+                relement.selectedIndex = 12;
+            }
+            return false;
+        }
         // Onsubmit handler.  A good excuse to write some JavaScript.
         function validate(f) {
             let delcount = 0;
@@ -700,7 +716,10 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>
-                                <td class="last_detail"></td>
+                              <td class="last_detail oe-text-to-right">
+                                <a href="#" class="text-decoration-none" onclick="return totalpayment(<?php
+                                echo attr_js($code); ?>)">alles</a>
+                              </td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
                                            onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr($code); ?>][pay]'], document.forms[0]['form_line[<?php echo attr($code); ?>][adj]'], document.forms[0]['form_line[<?php echo attr($code); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"

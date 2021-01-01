@@ -281,6 +281,7 @@ function echoServiceLines()
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
             }
 
+            $li['del'] = false;
             echo "  <td class='billcell text-center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
             "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
         }
@@ -486,6 +487,14 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
     $alertmsg = $fs->checkInventory($_POST['prod']);
 }
 
+if (!$alertmsg && ($_POST['bn_del'])) {
+        $fs->deleteAll();
+        $current_checksum = $fs->visitChecksum();
+
+}
+if (!$alertmsg && ($_POST['bn_save_pdf'])) {
+    $current_checksum = $fs->visitChecksum();
+}
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
@@ -1479,6 +1488,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <button type='submit' name='bn_save_close' class='btn btn-primary btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
                                         <?php } // end no charges ?>
                                     <?php } // end ippf-only ?>
+                                    <button type='submit' name='bn_del' class='btn btn-secondary btn-delete'
+                                            value='<?php
+                                            echo xla('Verwijder alles'); ?>'><?php
+                                        echo xlt('Verwijder alles'); ?></button>
                                 <?php } else { // visit is billed ?>
                                     <?php if ($fs->hasCharges) { // billed with charges ?>
                                         <button type='button' class='btn btn-secondary btn-show' onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'>
