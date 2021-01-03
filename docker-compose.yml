@@ -12,7 +12,6 @@ services:
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
-    #image: openemr/openemr:5.0.2
     build: ../openemr-devops/docker/openemr/flex-3.12
     ports:
       - 80:80
