@@ -429,9 +429,7 @@ if (isset($_FILES['fileToUpload'])) {
                             }
                         }
                         ?>
-                        <div>
-                            <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a>
-                        </div>
+
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -439,8 +437,6 @@ if (isset($_FILES['fileToUpload'])) {
                         <span><?php echo text($result['fname'] . " " . $result['lname']); ?> <i class="caret"></i></span></a>
                     <div class="dropdown-menu dropdown-menu-md-right" aria-labelledby="profiletab">
                         <div class="dropdown-header text-center"><?php echo xlt('Account'); ?></div>
-                        <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw"></i> <?php echo xlt('Messages'); ?>
-                            <span class="badge badge-pill badge-danger"><?php echo text($msgcnt); ?></span></a>
                         <div class="dropdown-divider"></div>
                         <?php if ($GLOBALS['allow_portal_chat']) {
                             ?>
@@ -507,7 +503,6 @@ if (isset($_FILES['fileToUpload'])) {
                         <?php } ?>
                     </div>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fas fa-envelope"></i> <?php echo xlt('Secure Messaging'); ?></a></li>
                 <?php if ($GLOBALS['allow_portal_chat']) { ?>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagescard" data-toggle="collapse"
                                                                data-parent="#cardgroup"><i class="fas fa-comment-medical"></i> <?php echo xlt("Secure Chat"); ?></a></li>
