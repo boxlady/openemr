@@ -521,6 +521,17 @@
           "admin",
           "manage_modules"
         ]
+      },
+        {
+            "label": "Behandel Plan",
+            "menu_id": "adm0",
+            "target": "pat",
+            "url": "/interface/behandleplan/plan_builder.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+                "admin"
+            ]
       }
     ],
     "requirement": 0,
