@@ -7,13 +7,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 
-if ($_POST['behandelplan_select']) {
-    $behandelplan_id = 1;
-    $behandelplan_id = $_POST['behandelplan_select'];
+$behandelplan_id = isset($_POST['behandelplan_select']) ? $_POST['behandelplan_select'] : '1';
     $behandelplaninfo = sqlQuery('select * from behandleplanen where id = ?', array($behandelplan_id));
-} else {
-    $behandelplan_id = 1;
-}
 function getBehandplans($tmp = 0)
 {
     $sql = 'Select * from behandleplanen';
@@ -89,7 +84,7 @@ function makeRow($type, $naam, $doosering, $pathway, $updown, $merk, $LnName, $i
             opt.value = dbid;
             opt.text = name;
             opt.selected = true;
-            document.getElementById(behandelplan_select).appendChild(opt);
+            document.getElementById('behandelplan_select').appendChild(opt);
         }
     </script>
     <style>
@@ -192,7 +187,7 @@ echo attr($oemr_ui->oeContainer()); ?>">
             </tbody>
         </table>
     </div>
-    <form id="plan_form" name="plan_form" method='post' action='plan_builder.php'>
+    <form id="plan_form" name="plan_form" method='post' action='plan_builder.php' onsubmit="return top.restoreSession()">
         <input type="hidden" name="behandelplanID" value="<?php echo attr($behandelplan_id); ?>"/>
 
         <div class="row">
@@ -200,7 +195,6 @@ echo attr($oemr_ui->oeContainer()); ?>">
                 <?php getBehandplans($behandelplaninfo['id']); ?>
                 <div class="button_group">
                     <?php echo "<button class='btn btn-primary btn-sm btn-add mr-1' onclick='newBehandelPlan(0," . attr_js('new') . ")'>" . xlt('Toevoegen') . "</button>"; ?>
-                    <button type="button" class="btn btn-sm  btn-secondary btn-save mr-1" id="save_">Opslaan</button>
                     <button type="button" class="btn btn-sm btn-delete btn-danger mr-1" id="del_">Verwijderen</button>
                 </div>
             </div>
@@ -208,7 +202,7 @@ echo attr($oemr_ui->oeContainer()); ?>">
 
         <!--        Change title based on Drop Down-->
         <div class="behandelplan_title">
-            <p class="behandelplan_title"> Behandelplan: Breast-Cancer </p>
+            <p class="behandelplan_title">  <?php echo $behandelplaninfo['info']; ?> </p>
         </div>
 
         <div class="behandelplan_rows">
@@ -216,7 +210,6 @@ echo attr($oemr_ui->oeContainer()); ?>">
 
                 <div>
                     <?php echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add mr-1' onclick='dopclick($behandelplan_id,0, " . attr_js('new') . ")'>" . xlt('New') . "</a>\n"; ?>
-                    <?php echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add mr-1' onclick='dopclick(0, 0," . attr_js('edit') . ")'>" . xlt('From DB') . "</a>\n"; ?>
                     <button type="button" class="btn btn-sm btn-delete btn-danger mr-1" id="del_toBehandleplan">
                         Verwijderen
                     </button>
@@ -241,6 +234,7 @@ echo attr($oemr_ui->oeContainer()); ?>">
                     </thead>
                     <tbody>
                     <?php
+                    if ($behandelplan_id != null) {
                     $sql = sqlStatement("Select * from bhp_medicijnen where Behandelplan_id = ?", $behandelplan_id);
                     foreach ($sql as $row) {
                         echo '<tr>';
@@ -259,6 +253,9 @@ echo attr($oemr_ui->oeContainer()); ?>">
 
                     }
 
+                    } else {
+                        echo "<td> No Data</td>";
+                    }
                     ?>
 
                     </tbody>
