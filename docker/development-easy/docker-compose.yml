@@ -43,23 +43,6 @@ services:
       XDEBUG_PROFILER_ON: 1
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_rest_api: 1
-      OPENEMR_SETTING_rest_fhir_api: 1
-      OPENEMR_SETTING_rest_portal_api: 1
-      OPENEMR_SETTING_rest_portal_fhir_api: 1
-      OPENEMR_SETTING_portal_onsite_two_enable: 1
-      OPENEMR_SETTING_ccda_alt_service_enable: 3
-      OPENEMR_SETTING_couchdb_host: couchdb
-      OPENEMR_SETTING_couchdb_port: 6984
-      OPENEMR_SETTING_couchdb_user: admin
-      OPENEMR_SETTING_couchdb_pass: password
-      OPENEMR_SETTING_couchdb_dbase: example
-      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
-      OPENEMR_SETTING_user_debug: 3
-      OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
-      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
-      DOMAIN: "gepd.nl"
-      EMAIL: "Boxlady@gmail.com"
     depends_on:
     - mysql
   phpmyadmin:
