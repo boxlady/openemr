@@ -59,4 +59,3 @@ volumes:
   vendordir: {}
   ccdamodule: {}
   logvolume: {}
-  couchdbvolume: {}
